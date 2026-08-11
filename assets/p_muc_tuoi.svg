@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" rx="18" fill="#f3e5f5"/>
+  <circle cx="325" cy="70"  r="58" fill="#e1bee7" opacity="0.5"/>
+  <circle cx="65"  cy="340" r="48" fill="#ce93d8" opacity="0.35"/>
+  <text x="200" y="210" font-size="175" text-anchor="middle" dominant-baseline="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🦑</text>
+  <rect x="0" y="315" width="400" height="85" rx="0" fill="#4a148c" opacity="0.12"/>
+  <text x="200" y="352" font-size="25" text-anchor="middle" font-weight="bold" fill="#4a148c"
+        font-family="Arial,sans-serif">Mực Tươi Hạ Long</text>
+  <text x="200" y="383" font-size="18" text-anchor="middle" fill="#6a1b9a"
+        font-family="Arial,sans-serif">Chợ Tươi · Hồng Gai</text>
+</svg>

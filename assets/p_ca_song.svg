@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" rx="18" fill="#e0f2f1"/>
+  <circle cx="320" cy="75"  r="55" fill="#b2dfdb" opacity="0.5"/>
+  <circle cx="65"  cy="335" r="48" fill="#80cbc4" opacity="0.4"/>
+  <text x="200" y="210" font-size="175" text-anchor="middle" dominant-baseline="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🐟</text>
+  <rect x="0" y="315" width="400" height="85" rx="0" fill="#004d40" opacity="0.12"/>
+  <text x="200" y="352" font-size="27" text-anchor="middle" font-weight="bold" fill="#004d40"
+        font-family="Arial,sans-serif">Cá Song Tươi</text>
+  <text x="200" y="383" font-size="18" text-anchor="middle" fill="#00695c"
+        font-family="Arial,sans-serif">Chợ Tươi · Hồng Gai</text>
+</svg>

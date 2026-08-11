@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" rx="18" fill="#f1f8e9"/>
+  <circle cx="320" cy="72"  r="58" fill="#dcedc8" opacity="0.55"/>
+  <circle cx="68"  cy="340" r="50" fill="#c5e1a5" opacity="0.42"/>
+  <text x="200" y="175" font-size="120" text-anchor="middle" dominant-baseline="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🌼</text>
+  <text x="200" y="278" font-size="90" text-anchor="middle" dominant-baseline="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🍵</text>
+  <rect x="0" y="315" width="400" height="85" rx="0" fill="#33691e" opacity="0.12"/>
+  <text x="200" y="352" font-size="25" text-anchor="middle" font-weight="bold" fill="#33691e"
+        font-family="Arial,sans-serif">Trà Hoa Vàng</text>
+  <text x="200" y="383" font-size="18" text-anchor="middle" fill="#558b2f"
+        font-family="Arial,sans-serif">Đặc Sản Quảng Ninh</text>
+</svg>

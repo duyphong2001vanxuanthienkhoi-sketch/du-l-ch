@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" rx="18" fill="#fce4ec"/>
+  <circle cx="322" cy="74"  r="56" fill="#f8bbd9" opacity="0.5"/>
+  <circle cx="68"  cy="338" r="48" fill="#f48fb1" opacity="0.38"/>
+  <!-- Bottle shape -->
+  <rect x="162" y="100" width="76"  height="18" rx="9" fill="#c62828"/>
+  <rect x="152" y="118" width="96"  height="16" rx="4" fill="#d32f2f"/>
+  <rect x="140" y="134" width="120" height="145" rx="12" fill="#e53935"/>
+  <rect x="148" y="134" width="104" height="145" rx="10" fill="#ef5350" opacity="0.7"/>
+  <!-- Label on bottle -->
+  <rect x="155" y="158" width="90" height="90" rx="6" fill="white" opacity="0.88"/>
+  <text x="200" y="196" font-size="13" text-anchor="middle" font-weight="bold" fill="#b71c1c"
+        font-family="Arial,sans-serif">Nước Mắm</text>
+  <text x="200" y="215" font-size="12" text-anchor="middle" fill="#c62828"
+        font-family="Arial,sans-serif">Cái Rồng</text>
+  <text x="200" y="235" font-size="22" text-anchor="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🐟</text>
+  <!-- Bottom -->
+  <rect x="140" y="279" width="120" height="16" rx="4" fill="#c62828"/>
+  <rect x="0" y="315" width="400" height="85" rx="0" fill="#880e4f" opacity="0.12"/>
+  <text x="200" y="352" font-size="25" text-anchor="middle" font-weight="bold" fill="#880e4f"
+        font-family="Arial,sans-serif">Nước Mắm Cái Rồng</text>
+  <text x="200" y="383" font-size="18" text-anchor="middle" fill="#ad1457"
+        font-family="Arial,sans-serif">Đặc Sản Quảng Ninh</text>
+</svg>

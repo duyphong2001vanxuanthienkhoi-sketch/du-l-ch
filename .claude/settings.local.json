@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"D:/New folder \\(3\\)/go cart/gocart-main/.claude\")",
+      "Bash(npm install *)"
+    ]
+  }
+}

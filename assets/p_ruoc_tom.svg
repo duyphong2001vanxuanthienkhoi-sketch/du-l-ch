@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" rx="18" fill="#f8f9fa"/>
+  <circle cx="318" cy="72"  r="55" fill="#eceff1" opacity="0.7"/>
+  <circle cx="68"  cy="340" r="47" fill="#cfd8dc" opacity="0.45"/>
+  <!-- Jar shape -->
+  <rect x="130" y="120" width="140" height="10" rx="5" fill="#546e7a"/>
+  <path d="M125 130 Q125 135 120 145 L115 260 Q115 275 200 278 Q285 275 285 260 L280 145 Q275 135 275 130 Z" fill="#b0bec5"/>
+  <path d="M128 130 Q128 133 124 142 L120 255 Q120 268 200 271 Q280 268 280 255 L276 142 Q272 133 272 130 Z" fill="#cfd8dc" opacity="0.6"/>
+  <!-- Label -->
+  <rect x="145" y="163" width="110" height="82" rx="5" fill="white" opacity="0.85"/>
+  <text x="200" y="192" font-size="13" text-anchor="middle" font-weight="bold" fill="#37474f"
+        font-family="Arial,sans-serif">Ruốc Tôm</text>
+  <text x="200" y="210" font-size="12" text-anchor="middle" fill="#546e7a"
+        font-family="Arial,sans-serif">Biển Hạ Long</text>
+  <text x="200" y="232" font-size="24" text-anchor="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🦐</text>
+  <!-- Lid -->
+  <rect x="125" y="112" width="150" height="20" rx="8" fill="#455a64"/>
+  <rect x="0" y="315" width="400" height="85" rx="0" fill="#37474f" opacity="0.12"/>
+  <text x="200" y="352" font-size="25" text-anchor="middle" font-weight="bold" fill="#37474f"
+        font-family="Arial,sans-serif">Ruốc Tôm Biển</text>
+  <text x="200" y="383" font-size="18" text-anchor="middle" fill="#546e7a"
+        font-family="Arial,sans-serif">Quà Quảng Ninh</text>
+</svg>

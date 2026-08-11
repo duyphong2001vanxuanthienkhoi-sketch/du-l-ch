@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" rx="18" fill="#fbe9e7"/>
+  <circle cx="320" cy="72"  r="56" fill="#ffccbc" opacity="0.5"/>
+  <circle cx="70"  cy="340" r="48" fill="#ffab91" opacity="0.38"/>
+  <text x="140" y="185" font-size="115" text-anchor="middle" dominant-baseline="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🐠</text>
+  <text x="268" y="235" font-size="100" text-anchor="middle" dominant-baseline="middle"
+        font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🦐</text>
+  <rect x="0" y="315" width="400" height="85" rx="0" fill="#bf360c" opacity="0.12"/>
+  <text x="200" y="352" font-size="25" text-anchor="middle" font-weight="bold" fill="#bf360c"
+        font-family="Arial,sans-serif">Hải Sản Khô Hồng Gai</text>
+  <text x="200" y="383" font-size="18" text-anchor="middle" fill="#d84315"
+        font-family="Arial,sans-serif">Quà Quảng Ninh</text>
+</svg>

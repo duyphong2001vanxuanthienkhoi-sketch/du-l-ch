@@ -1,0 +1,23 @@
+THƯ MỤC ẢNH THẬT CỦA CÁC ĐỊA ĐIỂM (Bản Đồ Số Hồng Gai)
+========================================================
+
+Thả file ảnh vào đây với TÊN FILE = ID ĐỊA ĐIỂM, đuôi .jpg / .jpeg / .png / .webp:
+
+  nui-bai-tho.jpg       -> Núi Bài Thơ
+  chua-long-tien.jpg    -> Chùa Long Tiên
+  den-duc-ong.jpg       -> Đền Đức Ông Trần Quốc Nghiễn
+  cho-ha-long-1.jpg     -> Chợ Hạ Long I
+  bao-tang-qn.jpg       -> Bảo tàng Quảng Ninh
+  cau-bai-chay.jpg      -> Cầu Bãi Cháy
+  vinh-ha-long.jpg      -> Vịnh Hạ Long
+
+Có file là ảnh TỰ HIỆN ở 3 chỗ: ảnh bìa trang /dia-diem/<id>, đầu thẻ ở trang
+/kham-pha, và ảnh nhỏ trong khối "Điểm đến nổi bật" ở trang chủ.
+Chưa có file thì giao diện giữ nguyên emoji như cũ — không lỗi gì cả.
+
+Muốn thêm nhiều ảnh cho trang chi tiết (mục "Hình ảnh"): đặt thêm file tùy tên
+(vd: nui-bai-tho-2.jpg) rồi khai báo trong lib/diaDiem.js:
+  thuVienAnh: ['/dia-diem/nui-bai-tho-2.jpg', '/dia-diem/nui-bai-tho-3.jpg']
+
+Lưu ý bản quyền: dùng ảnh tự chụp hoặc ảnh giấy phép tự do (Wikimedia Commons...),
+ảnh ngang khoảng 1200px là đẹp, tránh file quá nặng (>1MB).

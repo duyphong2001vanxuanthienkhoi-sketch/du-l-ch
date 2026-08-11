@@ -1,0 +1,628 @@
+@import "tailwindcss";
+
+/* Bảng màu thương hiệu Chợ Số Hồng Gai (theo bộ nhận diện):
+   ngọc  #00A8A8 (teal — sóng biển, màu chủ đạo)
+   hải   #0B2F4F (navy — núi đá, chữ đậm)
+   vàng  #D6B15A (vàng đồng — mái chợ, điểm nhấn) */
+@theme {
+    --color-ngoc-50: #E9F7F7;
+    --color-ngoc-100: #D2EFEF;
+    --color-ngoc-400: #33B9B9;
+    --color-ngoc-500: #00A8A8;
+    --color-ngoc-600: #008F8F;
+    --color-ngoc-700: #007070;
+    --color-hai-500: #14486E;
+    --color-hai-600: #0B2F4F;
+    --color-hai-700: #08243C;
+    --color-vang-100: #F7EED9;
+    --color-vang-500: #D6B15A;
+    --color-vang-600: #B8923F;
+
+    /* THANG CHỮ bổ sung. Thang sẵn của Tailwind nhảy 12 -> 14 -> 16px, mà giao diện chợ
+       cần vài cỡ nhỏ hơn cho nhãn/nhãn phụ nên trong code đã mọc ra 6 cỡ tuỳ hứng kiểu
+       text-[11px], text-[13px]... rải khắp nơi. Đặt tên hẳn 2 cỡ hay dùng nhất để chỗ mới
+       có cái mà theo, khỏi mỗi người tự chọn một số. (Cỡ 9/15/22px chỉ 1-2 chỗ dùng cho
+       trường hợp riêng thì vẫn để nguyên giá trị thẳng.) */
+    --text-ti: 11px;    /* nhãn nhỏ: "đã mua hàng", "gửi đi tỉnh", chú thích dưới ảnh */
+    --text-nho: 13px;   /* chữ nhỏ hơn text-sm một nấc: nút gọn trên điện thoại */
+}
+
+/* ============ CHỢ ĐÊM (giao diện tối) — bước 1: nền móng ============
+   Bật/tắt bằng class `dark` trên <html> (components/NutGiaoDien, lưu localStorage 'giao-dien';
+   script trong app/layout.jsx áp lại TRƯỚC khi React chạy để không chớp trắng).
+   Concept: không phải "dark mode kỹ thuật" mà là CHỢ ĐÊM Hạ Long — nền navy đá vôi,
+   chữ sáng như ánh đèn lồng, màu khu (ngọc/cam/vàng) vẫn giữ nguyên làm điểm sáng.
+   Bước 1 phủ màu bằng cách REMAP các lớp sáng dùng nhiều nhất (bg-white, bg/text/border
+   slate-*) — phủ ~1.100 chỗ dùng bằng một cụm rule; các bước sau tinh chỉnh từng nơi
+   bằng biến thể dark: khi cần. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- BẢNG MÀU THEO VAI TRÒ (một nguồn sự thật cho cả 2 chế độ) ----
+   Trước đây mỗi màu đêm là một mã hex viết thẳng, rải trong ~20 dòng remap bên dưới:
+   muốn chỉnh tông Chợ Đêm phải dò sửa từng dòng, và code mới không biết lấy màu ở đâu.
+   Giờ gom về biến đặt tên theo VAI TRÒ (nền / chữ / viền), đổi tông chỉ sửa khối này.
+   Tên: nen* = bề mặt, chu* = chữ (dam > manh > thuong > phu), vien = đường kẻ. */
+:root {
+    --nen: #ffffff;
+    --nen-the: #ffffff;
+    --nen-diu: #f8fafc;
+    --nen-diu-2: #f1f5f9;
+    --nen-diu-3: #e2e8f0;
+    --chu-dam: #1e293b;
+    --chu-manh: #334155;
+    --chu-thuong: #475569;
+    --chu-phu: #64748b;
+    --vien: #f1f5f9;
+    --vien-manh: #cbd5e1;
+    --mau-khu: #00A8A8; /* màu khu mặc định — mỗi khối tự đặt lại theo Chợ Tươi / Quà QN */
+}
+.dark {
+    color-scheme: dark;
+    --nen: #0a1626;
+    --nen-the: #10203a;
+    --nen-diu: #0d1b30;
+    --nen-diu-2: #182c47;
+    --nen-diu-3: #21395a;
+    --chu-dam: #e8eef7;
+    --chu-manh: #cfd9e6;
+    --chu-thuong: #a8b7cb;
+    --chu-phu: #8296af;
+    --vien: #1e3352;
+    --vien-manh: #2a4368;
+}
+
+.dark body { background-color: var(--nen); color: #cbd5e1; }
+/* Bề mặt: trắng -> navy đá vôi, xám nhạt -> navy đậm dần */
+.dark .bg-white { background-color: var(--nen-the); }
+.dark .bg-white\/90 { background-color: rgba(13, 27, 48, .92); }
+.dark .bg-slate-50 { background-color: var(--nen-diu); }
+.dark .bg-slate-100 { background-color: var(--nen-diu-2); }
+.dark .bg-slate-200 { background-color: var(--nen-diu-3); }
+.dark .hover\:bg-slate-50:hover { background-color: #16283f; }
+.dark .hover\:bg-slate-100:hover { background-color: #1d3350; }
+.dark .hover\:bg-slate-200:hover { background-color: #274264; }
+.dark .hover\:bg-white:hover { background-color: #16283f; }
+/* Chữ: đậm -> sáng, nhạt -> xám xanh dịu */
+.dark .text-slate-900, .dark .text-slate-800 { color: var(--chu-dam); }
+.dark .text-slate-700 { color: var(--chu-manh); }
+.dark .text-slate-600 { color: var(--chu-thuong); }
+.dark .text-slate-500 { color: var(--chu-phu); }
+.dark .hover\:text-slate-700:hover, .dark .hover\:text-slate-900:hover { color: var(--chu-dam); }
+/* Viền & ring */
+.dark .border-slate-100, .dark .border-slate-200, .dark .border-gray-300 { border-color: var(--vien); }
+.dark .divide-slate-100> :not([hidden])~ :not([hidden]) { border-color: var(--vien); }
+.dark .ring-slate-100, .dark .ring-slate-200 { --tw-ring-color: var(--vien); }
+/* Chữ mang màu thương hiệu đậm (navy "Hồng Gai" dưới logo, ngọc đậm) sáng lên trên nền đêm */
+.dark .text-hai-600 { color: #9db8d4; }
+.dark .text-ngoc-600 { color: #33B9B9; }
+.dark .text-ngoc-700 { color: #5fc9c9; }
+/* Bước 2 — phủ nốt các bề mặt còn lại */
+.dark .border-slate-300 { border-color: var(--vien-manh); }
+.dark .text-gray-500, .dark .text-gray-600 { color: var(--chu-thuong); }
+.dark .placeholder-slate-400::placeholder,
+.dark .placeholder-slate-500::placeholder,
+.dark .placeholder-slate-600::placeholder { color: #7488a3; }
+.dark .hover\:bg-red-50:hover { background-color: #3a1d29; }
+/* Vệt sáng quét của khung chờ dịu lại trên nền đêm */
+.dark .skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .07), transparent);
+}
+/* "Hộp sáng": các header section đặt nền pastel bằng INLINE STYLE (GianHang, Bản Đồ Số,
+   đầu trang địa điểm) — remap class không chạm tới inline được, mà chữ slate bên trong đã
+   bị remap sáng -> sáng-trên-sáng. Giải pháp: đánh dấu class `hop-sang` + biến --mau-khu,
+   khi tối override HẲN nền inline (!important) thành navy + quầng sáng đúng màu khu. */
+.dark .hop-sang {
+    background: radial-gradient(120% 170% at 100% 0%, color-mix(in srgb, var(--mau-khu, #00A8A8) 26%, transparent) 0%, transparent 55%), #10203a !important;
+}
+/* ---- MÀU KHU: dùng LỚP, đừng viết hex vào inline style ----
+   Màu khu (#059669 Chợ Tươi / #d97706 Quà QN) trước nay đặt bằng style={{ color: mau }}.
+   Remap của Chợ Đêm chỉ với tới CLASS, không với tới inline style — nên mọi chữ tô màu khu
+   đều giữ nguyên tông sáng-ngày trên nền navy, tương phản tụt xuống (#059669 trên #10203a
+   chỉ ~4.3:1, chữ nhỏ đọc mệt). Đã phải vá riêng 2 lần vì đúng lý do này.
+   Cách dùng: khối cha đặt style={{ '--mau-khu': mau }} MỘT lần, con dùng các lớp dưới đây;
+   khi tối màu tự pha sáng lên. Nền ĐẶC (nut-chinh, nhãn nền đậm chữ trắng) thì không cần
+   vì chữ trắng trên màu khu vẫn đủ tương phản ở cả hai chế độ. */
+.mau-khu { color: var(--mau-khu, #00A8A8); }
+.dark .mau-khu { color: color-mix(in srgb, var(--mau-khu, #00A8A8) 62%, white); }
+
+.vien-mau-khu { border-color: var(--mau-khu, #00A8A8); }
+.dark .vien-mau-khu { border-color: color-mix(in srgb, var(--mau-khu, #00A8A8) 70%, white); }
+
+/* Nhãn CHỮ NHỎ tô màu khu (vd "khách hay mua kèm" trong ô mua kèm) — chữ + nền nhạt cùng màu */
+.nhan-mau-khu {
+    color: var(--mau-khu, #00A8A8);
+    background-color: color-mix(in srgb, var(--mau-khu, #00A8A8) 8%, transparent);
+}
+.dark .nhan-mau-khu {
+    color: color-mix(in srgb, var(--mau-khu, #00A8A8) 62%, white);
+    background-color: color-mix(in srgb, var(--mau-khu, #00A8A8) 20%, transparent);
+}
+
+/* Toast (thông báo nổi) đổi màu theo giao diện — layout.jsx đọc 2 biến này */
+:root { --nen-toast: #ffffff; --chu-toast: #0B2F4F; }
+.dark { --nen-toast: #16283f; --chu-toast: #e8eef7; }
+/* Nền vùng nội dung + khung chờ */
+.dark .nen-song {
+    background-color: #0a1626;
+    background-image:
+        radial-gradient(120% 60% at 50% 0%, rgba(0, 168, 168, .10) 0%, rgba(0, 168, 168, 0) 60%),
+        linear-gradient(180deg, #0d1b30 0%, #0a1626 240px);
+}
+.dark .skeleton { background: #182c47; }
+
+@layer components {
+    @keyframes marqueeScroll {
+        0% {
+            transform: translateX(0%);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    @keyframes sectionFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+@layer base {
+    body {
+        font-family: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        /* Chữ mượt & nét hơn (nhất là trên macOS/Chrome) */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    /* Tiêu đề cân dòng — tránh 1 chữ lẻ rơi xuống dòng cuối, gọn mắt hơn */
+    h1, h2, h3, h4 {
+        text-wrap: balance;
+    }
+
+    /* Viền focus rõ cho người dùng BÀN PHÍM (a11y): chỉ hiện khi điều hướng bằng phím
+       (:focus-visible), KHÔNG hiện khi bấm chuột. Màu ngọc thương hiệu, tự bo theo phần tử. */
+    :focus-visible {
+        outline: 2px solid var(--color-ngoc-500);
+        outline-offset: 2px;
+    }
+
+    /* Bôi chọn văn bản mang màu ngọc thương hiệu (thay xanh mặc định của trình duyệt) */
+    ::selection {
+        background: color-mix(in srgb, var(--color-ngoc-500) 22%, transparent);
+    }
+
+    /* Dùng như app: chặn iOS tự phóng cỡ chữ, và tắt double-tap-to-zoom (vẫn cuộn bình thường) */
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+        /* Bỏ vệt xám nhấp nháy khi chạm nút/link trên điện thoại (đã có active:scale phản hồi) */
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        touch-action: manipulation;
+        /* Khoá kéo ngang như app: chặn mọi tràn ngang lỡ tay (menu, banner...) làm
+           cả trang trượt ngang. Dùng 'clip' thay 'hidden' để KHÔNG phá position:sticky
+           (thanh lọc dính ở trang chủ). Cuộn dọc vẫn bình thường. Các dải cuộn ngang
+           có chủ ý (carousel) tự cuộn trong khung overflow-x-auto riêng, không ảnh hưởng. */
+        overflow-x: clip;
+    }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* ============ Cảnh vịnh Hạ Long (components/Hero.jsx) ============ */
+
+@keyframes heroThuyenBob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3.5px) rotate(-1.4deg); }
+}
+@keyframes heroSongTroi {
+    to { transform: translateX(-120px); }
+}
+
+/* ============ Khối hiện dần khi cuộn (components/HienKhiCuon.jsx) ============
+   CẢNH BÁO: khi CHƯA hiện, khối này có `transform: translateY(18px)` nên trở thành KHUNG CHỨA
+   của mọi `position: fixed` bên trong (fixed sẽ neo vào khối này thay vì màn hình).
+   Lúc hiện xong đã trả về `transform: none` nên hết ảnh hưởng — nhưng ĐỪNG đặt phần tử fixed
+   (thanh nổi, hộp thoại, lightbox) bên trong <HienKhiCuon>, nó sẽ lệch chỗ cho tới khi cuộn tới.
+   Hiện tại chỉ bọc GianHang / BanDoSo / OurSpecs / Newsletter — đều không có fixed. */
+
+.hien-cuon {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-thuyen {
+        animation: heroThuyenBob 6s ease-in-out infinite;
+    }
+    .hero-song {
+        animation: heroSongTroi 11s linear infinite;
+    }
+    .hero-song-cham {
+        animation: heroSongTroi 18s linear infinite reverse;
+    }
+
+    .hien-cuon {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .hien-cuon.da-hien {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Cú "nhún" của icon giỏ hàng khi sản phẩm bay tới (hiệu ứng thêm vào giỏ) */
+@keyframes gioNhun {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.35); }
+    65% { transform: scale(.9); }
+    100% { transform: scale(1); }
+}
+.gio-nhun {
+    animation: gioNhun .45s ease;
+}
+
+/* Ảnh hiện dần mờ -> nét ĐÚNG LÚC ảnh tải xong (component Anh đổi opacity bằng state).
+   Trước dùng animation chạy ngay khi mount -> mạng chậm sẽ fade "con cua" dự phòng rồi
+   ảnh thật nhảy vào; giờ opacity do onLoad điều khiển nên fade khớp lúc ảnh sẵn sàng. */
+.anh-fade {
+    transition: opacity .5s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+    .anh-fade { transition: none; }
+}
+
+/* Số trên giỏ "nảy" khi số lượng đổi (components/Navbar.jsx remount span bằng key={count}) */
+@keyframes badgePop {
+    0% { transform: scale(.3); }
+    60% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .badge-pop { animation: badgePop .38s cubic-bezier(.34, 1.56, .64, 1); }
+}
+
+/* ============ Đổ bóng NHUỐM MÀU thương hiệu ============
+   Bóng xám/đen mặc định làm giao diện bị "đục". Bóng pha sắc navy (màu núi đá) trông
+   sạch và sang hơn; khi rê chuột thêm quầng ngọc rất nhẹ cho cảm giác "long lanh".
+   Khai báo bằng @utility (Tailwind v4) để dùng được cả biến thể, vd `hover:bong-theo-mau`. */
+@utility bong-mem {
+    box-shadow: 0 1px 2px rgba(11, 47, 79, .05), 0 4px 12px -3px rgba(11, 47, 79, .07);
+}
+@utility bong-noi {
+    box-shadow: 0 2px 6px rgba(11, 47, 79, .06), 0 16px 32px -10px rgba(0, 168, 168, .28);
+}
+/* Bóng nổi theo MÀU RIÊNG của khu (truyền qua biến --mau-bong, vd thẻ Quà QN màu vàng) */
+@utility bong-theo-mau {
+    box-shadow: 0 2px 6px rgba(11, 47, 79, .06), 0 16px 32px -10px color-mix(in srgb, var(--mau-bong, #00A8A8) 34%, transparent);
+}
+
+/* ============ Chữ có "tiếng nói" ============
+   Tiêu đề lớn dùng nét đậm + giãn chữ ÂM (siết lại) → khối chữ đặc, dứt khoát,
+   tương phản rõ với chữ nội dung. Đây là cách tạo cá tính mà không cần nạp thêm font. */
+@utility chu-hien-thi {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.12;
+}
+
+/* Số tiền/số lượng THẲNG CỘT — mọi chữ số cùng bề rộng nên số không "nhảy" khi đổi
+   (giỏ hàng, tổng tiền, bộ đếm). Kèm siết nhẹ cho khối số gọn mắt. */
+@utility so-tien {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+}
+
+/* ============ Nền dịu cho vùng NỘI DUNG ============
+   Bản đầu dùng hoa văn sóng LẶP Ô — nhìn ra chất "wallpaper/template cũ" và làm nhiễu
+   lưới sản phẩm. Đổi sang quầng sáng ngọc rất nhẹ đổ dần từ trên xuống: có chiều sâu,
+   KHÔNG lặp nên không lộ đường nối, và để hàng hoá là thứ nổi bật nhất.
+   (Hoa văn/minh hoạ để dành cho vùng hero — xem components/CanhVinhHaLong.) */
+@utility nen-song {
+    background-color: #f8fafc;
+    background-image:
+        radial-gradient(120% 60% at 50% 0%, rgba(0, 168, 168, .07) 0%, rgba(0, 168, 168, 0) 60%),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 240px);
+    background-repeat: no-repeat;
+}
+
+/* ============ Chuyển cảnh khi đổi trang (app/(public)/template.jsx) ============
+   Trang mới hiện vào bằng fade → mượt như app, thay vì nội dung nhảy phựt.
+
+   CHỈ ĐỔI OPACITY, TUYỆT ĐỐI KHÔNG DÙNG transform Ở ĐÂY.
+   Bản đầu có thêm `transform: translateY(8px)` cho nhích lên nhẹ, kèm fill-mode `both`
+   nên sau khi chạy xong vẫn giữ `transform: translateY(0)`. Mà phần tử có transform khác
+   `none` sẽ trở thành KHUNG CHỨA của mọi `position: fixed` bên trong → thanh "Đặt món"
+   ở trang quán ăn bị neo vào div này thay vì màn hình, rơi ra ngoài vùng nhìn thấy;
+   lightbox xem ảnh cũng bị kéo cao bằng cả trang. */
+@keyframes vaoTrang {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .vao-trang {
+        animation: vaoTrang .28s cubic-bezier(.22, .61, .36, 1) both;
+    }
+}
+
+/* ============ Nút hành động chính (Mua ngay / Thêm vào giỏ) ============
+   Nền chuyển sắc theo màu khu + bóng nhuốm chính màu đó → nút "nổi" khỏi mặt phẳng.
+   Rê chuột: nhấc nhẹ, bóng đậm hơn, và một VỆT SÁNG quét ngang (::after) cho cảm giác
+   bóng bẩy. Màu truyền vào qua biến --mau-nut để dùng lại cho mọi khu. */
+@utility nut-chinh {
+    position: relative;
+    overflow: hidden;
+    background-image: linear-gradient(135deg,
+            color-mix(in srgb, var(--mau-nut, #00A8A8) 88%, white) 0%,
+            var(--mau-nut, #00A8A8) 45%,
+            color-mix(in srgb, var(--mau-nut, #00A8A8) 82%, black) 100%);
+    box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--mau-nut, #00A8A8) 70%, transparent);
+}
+.nut-chinh::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%) skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .38), transparent);
+    pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+    .nut-chinh:hover::after { transition: transform .65s ease; transform: translateX(120%) skewX(-18deg); }
+}
+.nut-chinh:hover {
+    box-shadow: 0 10px 26px -6px color-mix(in srgb, var(--mau-nut, #00A8A8) 85%, transparent);
+}
+.nut-chinh:disabled { box-shadow: none; }
+
+/* Nút phụ (viền) — nền nhuốm màu rất nhẹ khi rê chuột thay vì trắng trơn */
+@utility nut-vien {
+    background-color: #ffffff;
+}
+.nut-vien:hover {
+    background-color: color-mix(in srgb, var(--mau-nut, #00A8A8) 8%, white);
+    box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--mau-nut, #00A8A8) 60%, transparent);
+}
+
+/* ============ Thanh mua thu gọn (trang chi tiết sản phẩm) ============
+   Trượt lên khi hiện. Transform nằm TRÊN CHÍNH phần tử fixed nên không gây lỗi khung chứa;
+   keyframe cuối vẫn trả về `none` cho sạch. */
+@keyframes thanhMuaVao {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .thanh-mua-vao { animation: thanhMuaVao .3s cubic-bezier(.22, .61, .36, 1) both; }
+}
+
+/* ============ Thẻ vào lưới CÓ NHỊP (stagger) ============
+   Các thẻ trong lưới hiện lần lượt cách nhau ~35ms thay vì đồng loạt — cảm giác "dàn dựng".
+   Keyframe cuối là `transform: none` (KHÔNG giữ translateY(0)) để thẻ không thành khung chứa
+   position:fixed như lỗi ở bản lưu 112. Chỉ đặt nhịp cho 12 thẻ đầu — thẻ sau nằm dưới màn hình. */
+@keyframes theVao {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .luoi-vao > * { animation: theVao .38s ease both; }
+    .luoi-vao > *:nth-child(2) { animation-delay: 35ms; }
+    .luoi-vao > *:nth-child(3) { animation-delay: 70ms; }
+    .luoi-vao > *:nth-child(4) { animation-delay: 105ms; }
+    .luoi-vao > *:nth-child(5) { animation-delay: 140ms; }
+    .luoi-vao > *:nth-child(6) { animation-delay: 175ms; }
+    .luoi-vao > *:nth-child(7) { animation-delay: 210ms; }
+    .luoi-vao > *:nth-child(8) { animation-delay: 245ms; }
+    .luoi-vao > *:nth-child(9) { animation-delay: 280ms; }
+    .luoi-vao > *:nth-child(10) { animation-delay: 315ms; }
+    .luoi-vao > *:nth-child(11) { animation-delay: 350ms; }
+    .luoi-vao > *:nth-child(12) { animation-delay: 385ms; }
+}
+
+/* Khung chờ (skeleton) — nền xám + vệt sáng quét qua để báo "đang tải" */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #e8ecf1;
+    border-radius: 10px;
+}
+.skeleton::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .7), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+    .skeleton::after {
+        animation: skeletonQuet 1.3s ease-in-out infinite;
+    }
+}
+@keyframes skeletonQuet {
+    100% { transform: translateX(100%); }
+}
+
+/* ============ Bản đồ Leaflet (components/BanDoLeaflet.jsx) ============ */
+
+/* Ghim: chấm tròn màu riêng từng địa điểm + ẢNH THẬT (hoặc emoji), đuôi nhọn chỉ đúng tọa độ */
+.ghim {
+    position: relative;
+    width: 40px;
+    height: 50px;
+    filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.25));
+    transition: transform 0.2s ease;
+    transform-origin: bottom center;
+}
+.ghim-dau {
+    position: absolute;
+    inset: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    background: #ffffff;
+    border: 3px solid var(--mau);
+    border-radius: 9999px;
+    overflow: hidden; /* cắt ảnh vừa khít khối tròn */
+}
+/* Ảnh thật của địa điểm nằm gọn trong khối tròn của ghim */
+.ghim-anh {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.ghim-emoji {
+    line-height: 1;
+}
+/* Đuôi nhọn của ghim */
+.ghim::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-top: 12px solid var(--mau);
+}
+.ghim-chon {
+    transform: scale(1.22);
+    z-index: 10;
+}
+.ghim-chon .ghim-dau {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--mau) 25%, transparent);
+}
+
+/* Popup: bỏ đệm mặc định của Leaflet để tự dàn ảnh + nội dung bo tròn */
+.popup-diadiem .leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px -8px rgb(15 23 42 / 0.35);
+}
+.popup-diadiem .leaflet-popup-content {
+    margin: 0;
+    width: 240px !important;
+    font-family: inherit;
+}
+.popup-diadiem .leaflet-popup-close-button {
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+    font-size: 18px;
+    padding: 6px 8px 0 0;
+    z-index: 5;
+}
+.popup-diadiem .leaflet-popup-tip {
+    box-shadow: 0 3px 10px rgb(15 23 42 / 0.2);
+}
+
+/* Phần ảnh đầu popup (ảnh thật hoặc nền màu + emoji khi chưa có ảnh) */
+.pdd-anh {
+    position: relative;
+    height: 116px;
+}
+.pdd-anh img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.pdd-anh-trong {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pdd-emoji {
+    font-size: 44px;
+    line-height: 1;
+}
+.pdd-loai {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.25);
+}
+
+/* Dải ảnh nhỏ (thư viện) ngay dưới ảnh bìa trong popup */
+.pdd-thumbs {
+    display: flex;
+    gap: 4px;
+    padding: 4px 6px 0;
+}
+.pdd-thumbs img {
+    flex: 1;
+    width: 0;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Thân popup */
+.pdd-than {
+    padding: 12px 14px 14px;
+}
+.pdd-than h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.35;
+}
+.pdd-than p {
+    font-size: 11.5px;
+    color: #64748b;
+    line-height: 1.55;
+    margin-top: 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.pdd-nut {
+    display: flex;
+    gap: 8px;
+    margin-top: 11px;
+}
+.pdd-nut a {
+    flex: 1;
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 7px 0;
+    border-radius: 9999px;
+    color: #ffffff;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+/* Nút "Khám phá" (nền màu): Leaflet mặc định đổi màu mọi <a> trong bản đồ thành
+   xanh #0078A8 khiến chữ khó đọc — ép về trắng (ưu tiên cao hơn Leaflet) + đổ bóng
+   nhẹ để đọc rõ trên cả những màu địa điểm sáng. Nút "Chỉ đường" giữ màu inline riêng. */
+.popup-diadiem .pdd-nut a.pdd-nut-chinh {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+}
+.pdd-nut a:hover {
+    opacity: 0.88;
+}
+.pdd-nut a:active {
+    transform: scale(0.96);
+}

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff8e1"/>
+      <stop offset="100%" stop-color="#ffecb3"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" fill="url(#bg2)"/>
+  <!-- decorative circles -->
+  <circle cx="210" cy="35"  r="50" fill="#ffe082" opacity="0.35"/>
+  <circle cx="25"  cy="210" r="45" fill="#ffd54f" opacity="0.30"/>
+  <!-- main items -->
+  <text x="55"  y="110" font-size="70" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🍵</text>
+  <text x="120" y="100" font-size="62" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🎁</text>
+  <text x="82"  y="165" font-size="60" font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif">🦑</text>
+  <!-- label -->
+  <rect x="10" y="195" width="220" height="36" rx="18" fill="#e65100" opacity="0.78"/>
+  <text x="120" y="218" font-size="14" font-weight="bold" text-anchor="middle" fill="white"
+        font-family="Arial,sans-serif">Quà Quảng Ninh</text>
+</svg>
