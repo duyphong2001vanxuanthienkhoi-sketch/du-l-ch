@@ -6,13 +6,9 @@
 // Nội dung dựng từ chính các địa điểm trong lib/diaDiem.mjs — giờ giấc là GỢI Ý
 // hợp lý theo khoảng cách đi bộ thực tế giữa các điểm trong phường, không phải
 // lịch cứng. Lễ hội lấy đúng mốc đã ghi trong phần giới thiệu địa điểm.
-import { neon } from '@neondatabase/serverless'
+import { ketNoiAnToan } from './_csdl.mjs'
 
-if (!process.env.DATABASE_URL) {
-    console.error('Thiếu DATABASE_URL. Chạy: npm run nap-lo-trinh')
-    process.exit(1)
-}
-const sql = neon(process.env.DATABASE_URL)
+const sql = await ketNoiAnToan()
 const luc = new Date().toISOString()
 
 const LO_TRINH = [

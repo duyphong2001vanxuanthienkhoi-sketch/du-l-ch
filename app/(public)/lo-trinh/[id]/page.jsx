@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { ArrowLeft, ArrowRight, Clock, MapPin, Navigation, Route } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { ArrowLeft, ArrowRight, Clock, MapPin, Navigation, Plus, Route } from 'lucide-react'
 import Loading from '@/components/Loading'
 import Anh from '@/components/Anh'
 import AnhDiaDiem from '@/components/AnhDiaDiem'
@@ -11,6 +12,7 @@ import { NutLuu } from '@/components/TheDiaDiem'
 import { useNgonNgu } from '@/lib/i18n'
 import { mauDiaDiem, iconDiaDiem, timLoai, linkChiDuong, khoangCachKm } from '@/lib/diaDiemLoai'
 import { taiDiaDiem } from '@/lib/utils/diaDiemClient'
+import { napTuLoTrinh } from '@/lib/utils/lichTrinh'
 
 const BanDo = dynamic(() => import('@/components/BanDo'), {
     ssr: false,
@@ -71,6 +73,17 @@ export default function TrangChiTietLoTrinh() {
     const mau = lt.mau || '#7c3aed'
     const laBoSuuTap = lt.kieu === 'bo_suu_tap'
 
+    const dungLoTrinhNay = () => {
+        const them = napTuLoTrinh(lt)
+        if (them) {
+            toast.success(t(`Đã thêm ${them} điểm vào hành trình của bạn`,
+                `Added ${them} stops to your journey`, `已将${them}个站点加入你的旅程`))
+        } else {
+            toast(t('Các điểm này đã có trong hành trình của bạn',
+                'These stops are already in your journey', '这些站点已在你的旅程中'))
+        }
+    }
+
     return (
         <div className='min-h-[70vh] mb-28 max-w-6xl mx-auto px-5 py-6'>
             <Link href='/lo-trinh' className='inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 mb-4'>
@@ -93,6 +106,14 @@ export default function TrangChiTietLoTrinh() {
                     )}
                 </div>
                 <p className='text-slate-600 mt-3 max-w-2xl leading-relaxed'>{t(...lt.mota)}</p>
+
+                {/* Nối nội dung biên tập sang kế hoạch cá nhân — chép các chặng vào
+                    "Hành trình của tôi" để khách sửa lại theo ý mình (localStorage) */}
+                <button onClick={dungLoTrinhNay}
+                    className='flex items-center gap-2 text-white text-sm font-semibold px-6 py-3 rounded-full mt-4 active:scale-95 transition'
+                    style={{ backgroundColor: mau }}>
+                    <Plus size={15} /> {t('Dùng lộ trình này', 'Use this itinerary', '采用此行程')}
+                </button>
             </div>
 
             <div className='grid lg:grid-cols-5 gap-6 mt-8 items-start'>

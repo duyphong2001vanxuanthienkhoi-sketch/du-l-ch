@@ -6,14 +6,10 @@
 //
 // Cùng logic với API /api/admin/dia-diem/nap-mau (nút bấm trong trang quản trị);
 // script này để dựng dữ liệu lần đầu mà chưa cần có tài khoản admin.
-import { neon } from '@neondatabase/serverless'
+import { ketNoiAnToan } from './_csdl.mjs'
 import { DIA_DIEM } from '../lib/diaDiem.mjs'
 
-if (!process.env.DATABASE_URL) {
-    console.error('Thiếu DATABASE_URL. Chạy: npm run nap-dia-diem')
-    process.exit(1)
-}
-const sql = neon(process.env.DATABASE_URL)
+const sql = await ketNoiAnToan()
 
 // Loại hình bản mồi chỉ là CHỮ tiếng Việt (['Di tích', ...]) chứ không phải id —
 // phải ánh xạ sang id chuẩn trong lib/diaDiemLoai.js.

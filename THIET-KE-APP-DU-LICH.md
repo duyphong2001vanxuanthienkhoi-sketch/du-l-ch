@@ -439,7 +439,7 @@ có danh tính thì thành bãi spam). Gỡ auth đồng nghĩa mất luôn (1),
 | ~~**2. Trục du lịch**~~ ✅ | Trang chủ mới · `/kham-pha` có bộ lọc + toggle Danh sách/Bản đồ · `/dia-diem/[id]` đọc từ CSDL · `/ban-do` toàn màn hình · `/luu` · BottomNav 5 tab · `<TheDiaDiem>` + `<BanDo>` + `<ChipLoaiHinh>` dùng chung | App đã "ra dáng" du lịch |
 | ~~**3. Dọn dẹp thương mại**~~ ✅ | Gỡ giỏ hàng, đơn hàng, Redux, `/shop` `/cart` `/orders` `/product` `/store/*` `/quan-an/*` `/do-an/*` `/gian/*` `/tra-don` + API và bảng liên quan; đổi thương hiệu sang "Khám Phá Hồng Gai" | Codebase sạch, hết code chết |
 | ~~**4. Chiều sâu**~~ ✅ | Lộ trình (timeline + bản đồ nối tuyến) · Bộ sưu tập · Sự kiện & lễ hội (đếm ngược, có xử lý âm lịch) · Gần tôi · đánh giá kèm ảnh | Nội dung khác biệt so với Google Maps |
-| **5. Cá nhân hoá** | Lưu · Lịch trình của tôi · Check-in & huy hiệu · thông báo lễ hội | Lý do để khách quay lại |
+| **5. Cá nhân hoá** ◐ | Lưu ✅ · Lịch trình của tôi ✅ · Check-in & huy hiệu ✅ · ~~thông báo lễ hội~~ (hoãn — xem mục 12) | Lý do để khách quay lại |
 | **6. Chủ cơ sở** | Đăng ký địa điểm · khu `/quan-ly` · ưu đãi | Nội dung tự cập nhật, không phải BTV làm hết |
 | **7. Thương hiệu** | Đổi tên, logo, favicon, ảnh mở đầu, README | Sản phẩm mới hoàn chỉnh |
 
@@ -485,3 +485,51 @@ vẫn hiện và bấm được bình thường, chỉ mất hiệu ứng. Khôn
 
 **Một component thẻ duy nhất** — `<TheDiaDiem>` thay cho `TheSanPham` / `TheGianHang` /
 thẻ inline ở `/kham-pha` hiện tại. Nhờ container query nên một bản dùng cho mọi ngữ cảnh.
+
+---
+
+## 12. ⚠️ CƠ SỞ DỮ LIỆU — phải tách riêng trước khi làm tiếp
+
+**Sự cố 12/8/2026.** Dự án này được tạo bằng cách copy thư mục Chợ Số Hồng Gai
+(`D:\New folder (3)\go cart\gocart-main`), nên `.env` đi theo và `DATABASE_URL` trỏ vào
+**đúng cơ sở dữ liệu mà chợ đang chạy thật**. Script dọn bảng cũ chạy trúng đó và xoá mất
+sản phẩm, gian hàng, đơn hàng thật của chợ. Cứu được nhờ script có sao lưu trước khi
+`DROP TABLE` — đã nạp lại đủ 94 dòng từ thư mục `sao-luu/`.
+
+Dấu hiệu đã có sẵn ngay từ đầu mà không ai nối lại: commit đầu tiên ghi
+*"khoi tao du an moi tu ban sao gocart (Cho so Hong Gai)"*.
+
+### Trạng thái hiện tại
+
+- `DATABASE_URL` trong `.env` **đã được làm trống** → không còn chạm được vào CSDL của chợ
+- App vẫn chạy bình thường, hiện trạng thái "chưa có địa điểm nào"
+  (`lib/server/db.js` nay báo lỗi lúc TRUY VẤN chứ không phải lúc nạp module)
+- Dữ liệu du lịch đã nạp trước đó (`dia_diem` 11, `lo_trinh` 5, `su_kien` 3) vẫn nằm trong
+  CSDL của chợ — chỉ là thêm vào, không sửa gì của chợ. Sẽ dựng lại trên CSDL mới.
+
+### Việc cần làm
+
+1. Neon Console → tạo **project mới** (KHÔNG dùng branch — branch sao chép nguyên dữ liệu của chợ sang) cho app du lịch
+2. Dán chuỗi kết nối vào **`.env.local`** (file đã tạo sẵn, có hướng dẫn bên trong).
+   `.env.local` nạp SAU `.env` nên tự ghi đè — **không cần sửa `.env`**
+3. Dựng lại dữ liệu:
+   ```
+   npm run tao-bang-du-lich
+   npm run nap-dia-diem
+   npm run nap-lo-trinh
+   npm run tao-admin
+   ```
+
+### Chốt an toàn đã cài
+
+`scripts/_csdl.mjs` — mọi script ghi dữ liệu của app du lịch đều đi qua đây.
+Nó kiểm tra sự tồn tại của bảng `stores` / `products` / `orders`: **app du lịch không bao
+giờ tạo những bảng này**, nên thấy chúng nghĩa là đang đứng nhầm trên CSDL của chợ →
+script DỪNG NGAY, in ra hướng dẫn, không ghi gì cả.
+
+Bỏ qua chốt (chỉ khi cố tình): đặt `CHO_PHEP_CSDL_CHUNG=1` trong `.env.local`.
+
+### Còn treo vì lý do này
+
+**Thông báo đẩy lễ hội** (giai đoạn 5) chưa làm: nó ghi vào bảng `push_dang_ky` — bảng
+dùng chung với chợ. Làm xong bước tách CSDL ở trên thì mới nên đụng vào.

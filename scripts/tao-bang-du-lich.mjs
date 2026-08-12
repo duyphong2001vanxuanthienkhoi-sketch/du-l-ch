@@ -9,13 +9,9 @@
 // (danh sách địa điểm có thứ tự) nên dùng chung bảng `lo_trinh`, phân biệt bằng `kieu`.
 //
 // Sau khi chạy xong, vào /admin/dia-diem bấm "Nạp địa điểm mẫu" để có dữ liệu đầu tiên.
-import { neon } from '@neondatabase/serverless'
+import { ketNoiAnToan } from './_csdl.mjs'
 
-if (!process.env.DATABASE_URL) {
-    console.error('Thiếu DATABASE_URL. Chạy: npm run tao-bang-du-lich  (đã tự nạp .env qua --env-file)')
-    process.exit(1)
-}
-const sql = neon(process.env.DATABASE_URL)
+const sql = await ketNoiAnToan()
 
 const cauLenh = [
     // Mỗi dòng: id là SLUG (vd 'chua-long-tien'), data giữ nguyên object địa điểm.
@@ -38,7 +34,26 @@ const cauLenh = [
     `CREATE TABLE IF NOT EXISTS su_kien (id TEXT PRIMARY KEY, data JSONB NOT NULL)`,
     `CREATE INDEX IF NOT EXISTS su_kien_status_idx ON su_kien ((data->>'status'))`,
     `CREATE INDEX IF NOT EXISTS su_kien_diadiem_idx ON su_kien ((data->>'diaDiemId'))`,
+
+    // TÀI KHOẢN — app guest-first nên du khách KHÔNG cần đăng nhập, nhưng vẫn phải có
+    // bảng này cho: quản trị/biên tập nội dung, và danh tính người viết đánh giá.
+    `CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, data JSONB NOT NULL)`,
+    // Email là duy nhất, không phân biệt hoa/thường — chặn trùng ngay ở tầng CSDL
+    `CREATE UNIQUE INDEX IF NOT EXISTS users_email_uniq ON users (lower(data->>'email'))`,
+
+    // ĐÁNH GIÁ ĐỊA ĐIỂM (kèm ảnh du khách chụp)
+    `CREATE TABLE IF NOT EXISTS ratings (id TEXT PRIMARY KEY, data JSONB NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS ratings_diadiem_idx ON ratings ((data->>'diaDiemId'))`,
+
+    // Đăng ký Web Push của từng thiết bị — dùng cho thông báo lễ hội sắp diễn ra
+    `CREATE TABLE IF NOT EXISTS push_dang_ky (endpoint TEXT PRIMARY KEY, data JSONB NOT NULL)`,
+    `CREATE INDEX IF NOT EXISTS push_dang_ky_user_idx ON push_dang_ky ((data->>'userId'))`,
 ]
+
+// KHÔNG tạo: stores / products / orders / coupons / quan_an / mon_an / don_do_an
+// (phần thương mại đã gỡ ở giai đoạn 3) và hoi_thoai / tin_nhan (chat đã gỡ).
+// Chính vì app du lịch không bao giờ tạo `stores` mà scripts/_csdl.mjs dùng nó
+// làm dấu hiệu nhận biết "đang đứng nhầm trên CSDL của chợ".
 
 for (const c of cauLenh) {
     await sql.query(c)

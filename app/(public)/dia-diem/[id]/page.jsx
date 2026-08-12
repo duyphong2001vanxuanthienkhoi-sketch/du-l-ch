@@ -6,8 +6,8 @@ import dynamic from 'next/dynamic'
 import toast from 'react-hot-toast'
 import {
     ArrowLeft, ArrowRight, Bus, CalendarDays, CheckCircle2, Clock, Compass, Globe,
-    ImagePlus, Images, MapPin, MessageSquare, Navigation, Phone, Send, Share2,
-    Sparkles, Star, Ticket, X,
+    ImagePlus, Images, MapPin, MessageSquare, Navigation, Phone, Route, Send, Share2,
+    Sparkles, Stamp, Star, Ticket, X,
 } from 'lucide-react'
 import Loading from '@/components/Loading'
 import Anh from '@/components/Anh'
@@ -23,6 +23,8 @@ import {
 } from '@/lib/diaDiemLoai'
 import { dangMoCua, taiDiaDiem } from '@/lib/utils/diaDiemClient'
 import { nenAnh } from '@/lib/utils/nenAnh'
+import { dongDau, useCheckIn, daCheckIn, BAN_KINH_M } from '@/lib/utils/hoChieu'
+import { themVaoLichTrinh, useLichTrinh, trongLichTrinh } from '@/lib/utils/lichTrinh'
 
 const BanDo = dynamic(() => import('@/components/BanDo'), {
     ssr: false,
@@ -49,6 +51,13 @@ export default function TrangDiaDiem() {
     const fileRef = useRef(null)
 
     const [suKiens, setSuKiens] = useState([])
+    const [dangDong, setDangDong] = useState(false)
+
+    // Hộ chiếu & lịch trình cá nhân — đều chạy trên localStorage, không cần đăng nhập
+    const checkIns = useCheckIn()
+    const lichTrinh = useLichTrinh()
+    const daDong = daCheckIn(id, checkIns)
+    const trongLT = trongLichTrinh(id, lichTrinh)
 
     useEffect(() => {
         if (!id) return
@@ -137,6 +146,42 @@ export default function TrangDiaDiem() {
         } finally {
             setDangGui(false)
         }
+    }
+
+    // --- Hộ chiếu: đóng dấu tại chỗ (xác thực bằng vị trí thật) ---
+    const dongDauTaiDay = async () => {
+        setDangDong(true)
+        try {
+            const kq = await dongDau(d)
+            if (kq.ok) {
+                toast.success(t('Đã đóng dấu vào hộ chiếu!', 'Stamped into your passport!', '已盖入护照！'))
+                return
+            }
+            const loi = {
+                'tu-choi-vi-tri': t('Cần cho phép truy cập vị trí thì mới đóng dấu được',
+                    'Location access is required to check in', '需允许定位才能打卡'),
+                'khong-lay-duoc-vi-tri': t('Không lấy được vị trí — thử lại ở nơi thoáng hơn',
+                    'Could not get your location — try again in the open', '无法获取位置 —— 请到开阔处重试'),
+                'khong-ho-tro': t('Trình duyệt này không hỗ trợ định vị',
+                    'This browser does not support geolocation', '此浏览器不支持定位'),
+                'thieu-toa-do': t('Địa điểm này chưa có toạ độ nên chưa đóng dấu được',
+                    'This place has no coordinates yet', '此地点尚无坐标'),
+                'da-check-in': t('Bạn đã đóng dấu nơi này rồi', 'Already stamped', '已经打过卡了'),
+                'qua-xa': t(
+                    `Bạn đang cách đây khoảng ${kq.khoangCachM}m — cần tới gần hơn (trong ${BAN_KINH_M}m) để đóng dấu`,
+                    `You are about ${kq.khoangCachM}m away — get within ${BAN_KINH_M}m to check in`,
+                    `你距此约${kq.khoangCachM}米 —— 需进入${BAN_KINH_M}米范围内才能打卡`),
+            }[kq.loi]
+            toast.error(loi || t('Chưa đóng dấu được', 'Could not check in', '无法打卡'))
+        } finally {
+            setDangDong(false)
+        }
+    }
+
+    const themLichTrinh = () => {
+        if (trongLT) return toast(t('Đã có trong lịch trình rồi', 'Already in your plan', '已在行程中'))
+        themVaoLichTrinh(d.id)
+        toast.success(t('Đã thêm vào lịch trình của bạn', 'Added to your plan', '已加入你的行程'))
     }
 
     const chiaSe = async () => {
@@ -236,7 +281,51 @@ export default function TrangDiaDiem() {
                         className='flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition active:scale-95'>
                         <Share2 size={15} /> {t('Chia sẻ', 'Share', '分享')}
                     </button>
+
+                    {/* Thêm vào lịch trình cá nhân — localStorage, không cần đăng nhập */}
+                    <button onClick={themLichTrinh}
+                        className={`flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-full border transition active:scale-95 ${trongLT ? 'bg-violet-50 border-violet-200 text-violet-700' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
+                        <Route size={15} /> {trongLT
+                            ? t('Đã có trong lịch trình', 'In your plan', '已在行程中')
+                            : t('Thêm vào lịch trình', 'Add to plan', '加入行程')}
+                    </button>
                 </div>
+
+                {/* ĐÓNG DẤU — xác thực bằng vị trí thật, nên huy hiệu mới có ý nghĩa */}
+                {d.viTri && (
+                    <div className={`flex items-center gap-3.5 rounded-2xl p-4 mt-4 border ${daDong ? 'bg-sky-50 border-sky-200' : 'bg-white border-slate-100 shadow-sm'}`}>
+                        <span className='flex items-center justify-center size-11 rounded-xl shrink-0 text-2xl'
+                            style={{ backgroundColor: daDong ? '#0284c71a' : '#f1f5f9' }}>
+                            {daDong ? '🎫' : '📍'}
+                        </span>
+                        <div className='min-w-0 flex-1'>
+                            {daDong ? (
+                                <>
+                                    <p className='font-semibold text-sky-800 text-sm'>{t('Đã đóng dấu nơi này', 'Stamped', '已在此打卡')}</p>
+                                    <Link href='/hanh-trinh' className='text-xs text-sky-700 underline'>
+                                        {t('Xem hộ chiếu Hồng Gai', 'View your Hong Gai passport', '查看鸿基护照')}
+                                    </Link>
+                                </>
+                            ) : (
+                                <>
+                                    <p className='font-semibold text-slate-800 text-sm'>{t('Bạn đang ở đây?', 'Are you here?', '你在这里吗？')}</p>
+                                    <p className='text-xs text-slate-500 mt-0.5'>
+                                        {t('Đóng dấu vào hộ chiếu để sưu tầm huy hiệu — cần bật vị trí.',
+                                            'Stamp your passport to collect badges — location required.',
+                                            '打卡集章 —— 需开启定位。')}
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                        {!daDong && (
+                            <button onClick={dongDauTaiDay} disabled={dangDong}
+                                className='flex items-center gap-2 text-white text-sm font-semibold px-5 py-2.5 rounded-full shrink-0 active:scale-95 transition disabled:opacity-60'
+                                style={{ backgroundColor: '#0284c7' }}>
+                                <Stamp size={15} /> {dangDong ? t('Đang kiểm…', 'Checking…', '核验中…') : t('Đóng dấu', 'Check in', '打卡')}
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 <div className='grid lg:grid-cols-3 gap-8 mt-10 items-start'>
                     {/* Bài giới thiệu */}
