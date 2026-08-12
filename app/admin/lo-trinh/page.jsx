@@ -18,7 +18,7 @@ const NGON_NGU = [
 const FORM_RONG = {
     id: '', kieu: 'lo_trinh',
     ten: ['', '', ''], mota: ['', '', ''], thoiLuong: ['', '', ''],
-    diem: [], anhBia: '', mau: '#7c3aed', icon: '🗺️',
+    diem: [], anhBia: '', mau: '#B8923F', icon: '🗺️',
     status: 'da_duyet', noiBat: 0,
 }
 
@@ -313,12 +313,12 @@ export default function AdminLoTrinh() {
                 {ds.map(lt => (
                     <div key={lt.id} className='flex items-center gap-4 bg-white border border-slate-200 rounded-xl p-4'>
                         <span className='flex items-center justify-center size-12 rounded-xl text-2xl shrink-0'
-                            style={{ backgroundColor: (lt.mau || '#7c3aed') + '1a' }}>{lt.icon || '🗺️'}</span>
+                            style={{ backgroundColor: (lt.mau || '#B8923F') + '1a' }}>{lt.icon || '🗺️'}</span>
                         <div className='min-w-0 flex-1'>
                             <div className='flex items-center gap-2 flex-wrap'>
                                 <p className='font-semibold text-slate-800 truncate'>{lt.ten?.[0]}</p>
                                 <span className='text-[11px] font-semibold px-2 py-0.5 rounded-full'
-                                    style={{ backgroundColor: (lt.mau || '#7c3aed') + '1a', color: lt.mau || '#7c3aed' }}>
+                                    style={{ backgroundColor: (lt.mau || '#B8923F') + '1a', color: lt.mau || '#B8923F' }}>
                                     {lt.kieu === 'bo_suu_tap' ? 'Bộ sưu tập' : 'Lộ trình'}
                                 </span>
                             </div>

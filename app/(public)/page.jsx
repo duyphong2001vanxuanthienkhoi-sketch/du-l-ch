@@ -12,6 +12,7 @@ import { LuoiDiaDiemSkeleton } from '@/components/Skeleton'
 import { SongNgan } from '@/components/HoaTietSong'
 import { useNgonNgu } from '@/lib/i18n'
 import { LOAI_DIA_DIEM } from '@/lib/diaDiemLoai'
+import { MAU } from '@/lib/thuongHieu'
 import { useDiaDiem, dangMoCua } from '@/lib/utils/diaDiemClient'
 
 // TRANG CHỦ app du lịch Hồng Gai.
@@ -78,9 +79,9 @@ export default function TrangChu() {
                         anhNen.anhBia
                             ? <Anh src={anhNen.anhBia} alt='' className='w-full h-full object-cover' uuTien />
                             : <AnhDiaDiem id={anhNen.id} alt='' className='w-full h-full object-cover'
-                                fallback={<span className='block w-full h-full' style={{ background: 'linear-gradient(135deg,#0369a1,#0c4a6e)' }} />} />
+                                fallback={<span className='block w-full h-full' style={{ background: 'linear-gradient(135deg,#14486E,#08243C)' }} />} />
                     ) : (
-                        <span className='block w-full h-full' style={{ background: 'linear-gradient(135deg,#0369a1,#0c4a6e)' }} />
+                        <span className='block w-full h-full' style={{ background: 'linear-gradient(135deg,#14486E,#08243C)' }} />
                     )}
                 </div>
                 <div className='absolute inset-0' aria-hidden='true'
@@ -110,7 +111,8 @@ export default function TrangChu() {
                             placeholder={t('Tìm địa điểm, quán ăn, chùa...', 'Search places, food, pagodas...', '搜索地点、美食、寺庙…')}
                             className='w-full bg-transparent outline-none text-sm placeholder-slate-400' />
                         <button type='submit'
-                            className='text-white text-sm font-semibold px-5 py-2 rounded-full bg-sky-600 hover:bg-sky-700 active:scale-95 transition shrink-0'>
+                            className='text-white text-sm font-semibold px-5 py-2 rounded-full active:scale-95 transition shrink-0 hover:opacity-90'
+                            style={{ backgroundColor: MAU.ngoc }}>
                             {t('Tìm', 'Search', '搜索')}
                         </button>
                     </form>
@@ -129,9 +131,12 @@ export default function TrangChu() {
 
             {/* ---------- BẢN ĐỒ ---------- */}
             <section className='max-w-6xl mx-auto px-5 mt-8'>
+                {/* `hop-sang`: nền pastel đặt bằng inline style thì remap của chế độ tối không
+                    với tới, trong khi chữ slate bên trong ĐÃ bị remap sáng — thành sáng-trên-sáng,
+                    mất chữ. Class này override hẳn nền khi tối. */}
                 <Link href='/ban-do'
-                    className='group flex items-center gap-4 rounded-2xl p-5 border border-sky-100 shadow-sm hover:shadow-md transition'
-                    style={{ background: 'linear-gradient(135deg,#f0f9ff,#dbeafe)' }}>
+                    className='hop-sang group flex items-center gap-4 rounded-2xl p-5 border border-sky-100 shadow-sm hover:shadow-md transition'
+                    style={{ background: 'linear-gradient(135deg,#f0f9ff,#dbeafe)', '--mau-khu': MAU.ngoc }}>
                     <span className='flex items-center justify-center size-14 rounded-2xl bg-white shadow-sm shrink-0 text-sky-600'>
                         <MapIcon size={26} />
                     </span>
@@ -169,7 +174,7 @@ export default function TrangChu() {
                     moTa={t('Lộ trình dựng sẵn theo giờ — khỏi phải tự sắp',
                         'Hour-by-hour itineraries — no planning needed',
                         '按时段编排好的行程 —— 无需自己安排')}
-                    mau='#7c3aed' href='/lo-trinh' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                    mau='#B8923F' href='/lo-trinh' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
                     {/* Máy tính: lưới 3 cột cho gọn gàng. Điện thoại: cuộn ngang.
                         Trước đây desktop cũng cuộn ngang nên thẻ thứ 4 bị cắt cụt ở mép phải —
                         trên điện thoại thẻ ló ra là tín hiệu "vuốt đi", còn trên máy tính
@@ -239,7 +244,7 @@ export default function TrangChu() {
                     <div style={{ background: '#f0f9ff' }} className='py-2'>
                         <Khu tieuDe={t('Điểm đến nổi bật', 'Featured destinations', '热门景点')}
                             moTa={t('Những nơi không nên bỏ lỡ khi đến Hồng Gai', 'Not to be missed in Hong Gai', '来鸿基不容错过')}
-                            mau='#0284c7' href='/kham-pha' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                            mau='#00A8A8' href='/kham-pha' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
                             <div className='luoi-dd grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
                                 {noiBat.map(d => <TheDiaDiem key={d.id} d={d} />)}
                             </div>

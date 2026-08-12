@@ -165,12 +165,12 @@ function NoiDungKhamPha() {
             {/* Nội dung */}
             <div className='max-w-6xl mx-auto px-5 mt-6'>
                 {!ds.length ? (
-                    <TrangRong Icon={MapPin} mau='#0284c7'
+                    <TrangRong Icon={MapPin} mau='#00A8A8'
                         tieuDe={t('Chưa có địa điểm nào', 'No places yet', '还没有地点')}
                         moTa={t('Quản trị viên chưa nạp dữ liệu địa điểm. Vào /admin/dia-diem để thêm.',
                             'No place data has been loaded yet.', '尚未载入地点数据。')} />
                 ) : !ketQua.length ? (
-                    <TrangRong Icon={Search} mau='#0284c7'
+                    <TrangRong Icon={Search} mau='#00A8A8'
                         tieuDe={t('Không tìm thấy địa điểm nào', 'No places found', '未找到地点')}
                         moTa={t('Thử bỏ bớt bộ lọc hoặc tìm bằng từ khoá khác.',
                             'Try removing some filters or searching differently.', '试试减少筛选条件或换个关键词。')} />

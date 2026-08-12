@@ -96,7 +96,7 @@ export default function TrangBanDo() {
                         <TheDiaDiem d={dChon} kieu='ngang' khoangCach={km} />
                         <a href={linkChiDuong(dChon.ten)} target='_blank' rel='noopener noreferrer'
                             className='flex items-center justify-center gap-2 w-full mt-2 py-3 rounded-2xl text-white text-sm font-semibold shadow-lg active:scale-95 transition'
-                            style={{ backgroundColor: dChon.mau || '#0284c7' }}>
+                            style={{ backgroundColor: dChon.mau || '#00A8A8' }}>
                             <Navigation size={15} /> {t('Chỉ đường', 'Directions', '路线')}
                         </a>
                     </div>

@@ -41,8 +41,8 @@ export default function TrangHanhTrinh() {
 
     const tabs = [
         { id: 'da-luu', nhan: t('Đã lưu', 'Saved', '收藏'), Icon: Bookmark, so: dsLuu.length, mau: '#e11d48' },
-        { id: 'lich-trinh', nhan: t('Lịch trình', 'My plan', '我的行程'), Icon: Route, so: lichTrinh.length, mau: '#7c3aed' },
-        { id: 'ho-chieu', nhan: t('Hộ chiếu', 'Passport', '护照'), Icon: Stamp, so: tk.tong, mau: '#0284c7' },
+        { id: 'lich-trinh', nhan: t('Lịch trình', 'My plan', '我的行程'), Icon: Route, so: lichTrinh.length, mau: '#B8923F' },
+        { id: 'ho-chieu', nhan: t('Hộ chiếu', 'Passport', '护照'), Icon: Stamp, so: tk.tong, mau: '#00A8A8' },
     ]
 
     return (
@@ -148,7 +148,7 @@ export default function TrangHanhTrinh() {
                         </div>
                     </>
                 ) : (
-                    <TrangRong Icon={Route} mau='#7c3aed'
+                    <TrangRong Icon={Route} mau='#B8923F'
                         tieuDe={t('Lịch trình còn trống', 'Your plan is empty', '行程还是空的')}
                         moTa={t('Mở một địa điểm rồi bấm "Thêm vào lịch trình", hoặc lấy nguyên một lộ trình dựng sẵn.',
                             'Open a place and tap "Add to plan", or start from a ready-made itinerary.',
@@ -162,7 +162,7 @@ export default function TrangHanhTrinh() {
                 <div className='mt-6'>
                     {/* Tổng quan */}
                     <div className='rounded-3xl p-6 text-white'
-                        style={{ background: 'linear-gradient(135deg,#0369a1,#0c4a6e)' }}>
+                        style={{ background: 'linear-gradient(135deg,#14486E,#08243C)' }}>
                         <p className='text-sm text-white/70'>{t('Hộ chiếu Hồng Gai', 'Hong Gai passport', '鸿基护照')}</p>
                         <div className='flex items-end gap-6 mt-2 flex-wrap'>
                             <div>
@@ -247,7 +247,7 @@ export default function TrangHanhTrinh() {
                             })}
                         </div>
                     ) : (
-                        <TrangRong Icon={CalendarCheck} mau='#0284c7'
+                        <TrangRong Icon={CalendarCheck} mau='#00A8A8'
                             tieuDe={t('Chưa có dấu nào', 'No stamps yet', '还没有印章')}
                             moTa={t('Tới một địa điểm bất kỳ ở Hồng Gai rồi mở trang của nó để đóng dấu đầu tiên.',
                                 'Visit any place in Hong Gai and open its page to collect your first stamp.',

@@ -44,7 +44,7 @@ export default function AdminTongQuan() {
     const tongXem = ds.reduce((s, d) => s + (d.luotXem || 0), 0)
 
     const oThongKe = [
-        { nhan: 'Địa điểm', so: ds.length, phu: `${daDuyet.length} đã duyệt`, mau: '#0284c7' },
+        { nhan: 'Địa điểm', so: ds.length, phu: `${daDuyet.length} đã duyệt`, mau: '#00A8A8' },
         { nhan: 'Lượt xem', so: tongXem, phu: 'tổng cộng', mau: '#059669' },
         { nhan: 'Thiếu ảnh bìa', so: thieuAnh.length, phu: 'nên bổ sung', mau: '#d97706' },
         { nhan: 'Thiếu bản dịch', so: thieuDich.length, phu: 'chưa đủ Anh/Trung', mau: '#dc2626' },

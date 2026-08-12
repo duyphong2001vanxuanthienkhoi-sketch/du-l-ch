@@ -70,7 +70,7 @@ export default function TrangChiTietLoTrinh() {
         </div>
     )
 
-    const mau = lt.mau || '#7c3aed'
+    const mau = lt.mau || '#B8923F'
     const laBoSuuTap = lt.kieu === 'bo_suu_tap'
 
     const dungLoTrinhNay = () => {
@@ -91,8 +91,8 @@ export default function TrangChiTietLoTrinh() {
             </Link>
 
             {/* Đầu trang */}
-            <div className='rounded-3xl px-6 py-7 sm:px-9'
-                style={{ background: `radial-gradient(120% 170% at 100% 0%, ${mau}30 0%, transparent 55%), linear-gradient(135deg, ${mau}12, ${mau}26)` }}>
+            <div className='hop-sang rounded-3xl px-6 py-7 sm:px-9'
+                style={{ background: `radial-gradient(120% 170% at 100% 0%, ${mau}30 0%, transparent 55%), linear-gradient(135deg, ${mau}12, ${mau}26)`, '--mau-khu': mau }}>
                 <span className='inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full text-white' style={{ backgroundColor: mau }}>
                     {lt.icon} {laBoSuuTap ? t('Bộ sưu tập', 'Collection', '专题') : t('Lộ trình gợi ý', 'Suggested itinerary', '推荐行程')}
                 </span>

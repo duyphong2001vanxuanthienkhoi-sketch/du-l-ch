@@ -8,9 +8,9 @@ import { useEffect, useState } from 'react'
 // Bảng màu cảnh vịnh theo giờ — nền đủ đậm để chữ trắng luôn dễ đọc
 export const BANG_MAU_VINH = {
     sang: { nen: 'linear-gradient(180deg, #0e7490 0%, #047857 55%, #065f46 100%)', vatTroi: 'sun', mauVatTroi: '#fde68a' },
-    chieu: { nen: 'linear-gradient(180deg, #0369a1 0%, #0b7a68 60%, #065f46 100%)', vatTroi: 'sun', mauVatTroi: '#fef3c7' },
+    chieu: { nen: 'linear-gradient(180deg, #14486E 0%, #0b7a68 60%, #065f46 100%)', vatTroi: 'sun', mauVatTroi: '#fef3c7' },
     hoangHon: { nen: 'linear-gradient(180deg, #b45309 0%, #92400e 40%, #14532d 100%)', vatTroi: 'sun', mauVatTroi: '#fdba74' },
-    toi: { nen: 'linear-gradient(180deg, #0c4a6e 0%, #134e4a 60%, #052e2b 100%)', vatTroi: 'moon', mauVatTroi: '#e2e8f0' },
+    toi: { nen: 'linear-gradient(180deg, #08243C 0%, #134e4a 60%, #052e2b 100%)', vatTroi: 'moon', mauVatTroi: '#e2e8f0' },
 }
 
 export function buoiHienTai() {
@@ -45,7 +45,7 @@ export default function CanhVinhHaLong({ buoi = 'chieu', cao = '72%' }) {
             ) : (
                 <g>
                     <circle cx='636' cy='60' r='24' fill={b.mauVatTroi} opacity='.9' />
-                    <circle cx='646' cy='53' r='20' fill='#0c4a6e' />
+                    <circle cx='646' cy='53' r='20' fill='#08243C' />
                     {/* Vài ngôi sao đêm */}
                     <circle cx='520' cy='38' r='1.8' fill='#e2e8f0' opacity='.8' />
                     <circle cx='568' cy='84' r='1.4' fill='#e2e8f0' opacity='.6' />

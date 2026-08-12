@@ -14,7 +14,7 @@ import { useNgonNgu } from '@/lib/i18n'
 // Ảnh bìa: ưu tiên ảnh tự đặt; chưa có thì MƯỢN ảnh của điểm dừng ĐẦU TIÊN —
 // lộ trình nào cũng có ít nhất một điểm, nên gần như luôn có ảnh thật để hiện.
 const Bia = ({ lt, diemDau, className }) => {
-    const mau = lt.mau || '#7c3aed'
+    const mau = lt.mau || '#B8923F'
     const nen = (
         <span className='flex items-center justify-center w-full h-full text-5xl'
             style={{ background: `linear-gradient(135deg, ${mau}22, ${mau}66)` }}>
@@ -34,7 +34,7 @@ const Bia = ({ lt, diemDau, className }) => {
 
 export default function TheLoTrinh({ lt, ds = [], kieu = 'luoi' }) {
     const { t } = useNgonNgu()
-    const mau = lt.mau || '#7c3aed'
+    const mau = lt.mau || '#B8923F'
     const diemDau = ds.find(x => x.id === lt.diem?.[0]?.diaDiemId) || null
     const soDiem = lt.diem?.length || 0
 

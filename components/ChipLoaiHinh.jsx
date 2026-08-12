@@ -12,7 +12,7 @@ export default function ChipLoaiHinh({ chon, onChon, dem = null, className = '' 
     const { t } = useNgonNgu()
 
     const muc = [
-        { id: '', ten: ['Tất cả', 'All', '全部'], icon: '✨', mau: '#0d9488' },
+        { id: '', ten: ['Tất cả', 'All', '全部'], icon: '✨', mau: '#00A8A8' },
         ...LOAI_DIA_DIEM,
     ]
 

@@ -109,7 +109,7 @@ export default function AdminNhap() {
                             { nhan: 'Đọc được', so: ds.length, mau: '#334155' },
                             { nhan: 'Sẽ nhập', so: hopLe.length, mau: '#059669' },
                             { nhan: 'Thiếu toạ độ', so: thieuToaDo.length, mau: '#d97706' },
-                            { nhan: 'Cần rà loại', so: canRaSoat.length, mau: '#7c3aed' },
+                            { nhan: 'Cần rà loại', so: canRaSoat.length, mau: '#B8923F' },
                         ].map(o => (
                             <div key={o.nhan} className='bg-white border border-slate-200 rounded-xl p-4'>
                                 <p className='text-xs text-slate-500'>{o.nhan}</p>

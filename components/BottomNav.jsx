@@ -3,6 +3,7 @@ import { Bookmark, Compass, Home, Map, Route } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useNgonNgu } from '@/lib/i18n'
+import { MAU } from '@/lib/thuongHieu'
 
 // Thanh điều hướng dưới kiểu app — hiện trên điện thoại VÀ máy tính bảng (lg:hidden),
 // máy tính (từ 1024px) mới dùng menu trên ở Navbar.
@@ -15,21 +16,26 @@ import { useNgonNgu } from '@/lib/i18n'
 // mục 4: 10 loại không nhét vừa 5 ô, và nhét vào thì mất đường về Bản đồ với Lộ trình.
 //
 // Tab GIỮA (Bản đồ) nhô lên thành nút tròn nổi — bản đồ là trái tim của app du lịch.
-const INACTIVE = '#94a3b8' // slate-400
+
 
 const BottomNav = () => {
     const pathname = usePathname()
     const { t } = useNgonNgu()
 
+    // ĐƠN SẮC, không phải ngũ sắc.
+    // Bản trước mỗi tab một màu (xanh lá, xanh dương, tím, hồng...) — nhìn rối và rẻ tiền,
+    // lại chẳng mang thông tin gì vì màu không nói lên tab đó là gì. Nay: đang chọn = ngọc
+    // (màu chủ đạo thương hiệu), chưa chọn = xám. Chỉ nút BẢN ĐỒ nổi giữa giữ màu navy
+    // đậm — nó là hành động chính nên đáng được nổi bật riêng.
     const tabs = [
-        { href: '/', label: t('Trang chủ', 'Home', '首页'), Icon: Home, mau: '#0d9488', active: pathname === '/' },
-        { href: '/kham-pha', label: t('Khám phá', 'Explore', '发现'), Icon: Compass, mau: '#0284c7', active: pathname.startsWith('/kham-pha') || pathname.startsWith('/dia-diem') },
-        { href: '/ban-do', label: t('Bản đồ', 'Map', '地图'), Icon: Map, mau: '#0369a1', active: pathname.startsWith('/ban-do'), noi: true },
+        { href: '/', label: t('Trang chủ', 'Home', '首页'), Icon: Home, active: pathname === '/' },
+        { href: '/kham-pha', label: t('Khám phá', 'Explore', '发现'), Icon: Compass, active: pathname.startsWith('/kham-pha') || pathname.startsWith('/dia-diem') },
+        { href: '/ban-do', label: t('Bản đồ', 'Map', '地图'), Icon: Map, mau: MAU.haiDam, active: pathname.startsWith('/ban-do'), noi: true },
         // Giai đoạn 2 tab này là "Ăn uống" vì Lộ trình chưa có, để link chết thì tệ.
         // Nay Lộ trình đã chạy nên trả về đúng thiết kế: đây mới là thứ khác biệt so với
         // bản đồ thường. Ăn uống vẫn tới nhanh được qua chip đầu tiên ở mọi trang.
-        { href: '/lo-trinh', label: t('Lộ trình', 'Routes', '行程'), Icon: Route, mau: '#7c3aed', active: pathname.startsWith('/lo-trinh') },
-        { href: '/hanh-trinh', label: t('Hành trình', 'Journey', '旅程'), Icon: Bookmark, mau: '#e11d48', active: pathname.startsWith('/hanh-trinh') },
+        { href: '/lo-trinh', label: t('Lộ trình', 'Routes', '行程'), Icon: Route, active: pathname.startsWith('/lo-trinh') },
+        { href: '/hanh-trinh', label: t('Hành trình', 'Journey', '旅程'), Icon: Bookmark, active: pathname.startsWith('/hanh-trinh') },
     ]
 
     return (
@@ -58,14 +64,14 @@ const BottomNav = () => {
                         className='flex flex-col items-center gap-1 pt-2 pb-2 active:scale-90 transition-transform'>
                         <span className='flex items-center justify-center px-3.5 py-1.5 rounded-2xl transition-all duration-300'
                             style={{
-                                backgroundColor: tab.active ? tab.mau : 'transparent',
-                                boxShadow: tab.active ? `0 6px 14px -4px ${tab.mau}80` : 'none',
+                                backgroundColor: tab.active ? MAU.ngoc : 'transparent',
+                                boxShadow: tab.active ? `0 6px 14px -4px ${MAU.ngoc}80` : 'none',
                             }}>
                             <tab.Icon size={20} strokeWidth={tab.active ? 2.4 : 2}
-                                style={{ color: tab.active ? '#ffffff' : INACTIVE, transition: 'color .25s' }} />
+                                style={{ color: tab.active ? '#ffffff' : MAU.xam, transition: 'color .25s' }} />
                         </span>
                         <span className='text-[10px] leading-none transition-colors duration-300'
-                            style={{ color: tab.active ? tab.mau : INACTIVE, fontWeight: tab.active ? 700 : 500 }}>
+                            style={{ color: tab.active ? MAU.ngoc : MAU.xam, fontWeight: tab.active ? 700 : 500 }}>
                             {tab.label}
                         </span>
                     </Link>

@@ -235,7 +235,7 @@ export default function AdminDiaDiem() {
 
     // ---------------- FORM THÊM / SỬA ----------------
     if (form) {
-        const mauHienTai = form.mau || timLoai(form.loai)?.mau || '#0284c7'
+        const mauHienTai = form.mau || timLoai(form.loai)?.mau || '#00A8A8'
         const maDuKien = form.id || taoSlug(form.ten[0]) || '(chưa có tên)'
 
         return (

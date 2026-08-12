@@ -43,7 +43,7 @@ export default function TrangLoTrinh() {
             </p>
 
             {!lts.length ? (
-                <TrangRong Icon={Route} mau='#7c3aed'
+                <TrangRong Icon={Route} mau='#B8923F'
                     tieuDe={t('Chưa có lộ trình nào', 'No itineraries yet', '还没有行程')}
                     moTa={t('Quản trị viên chạy: npm run nap-lo-trinh', 'An administrator can seed them.', '管理员可载入数据。')}
                     nutText={t('Khám phá địa điểm', 'Explore places', '探索地点')} nutHref='/kham-pha' />

@@ -295,7 +295,7 @@ export default function TrangDiaDiem() {
                 {d.viTri && (
                     <div className={`flex items-center gap-3.5 rounded-2xl p-4 mt-4 border ${daDong ? 'bg-sky-50 border-sky-200' : 'bg-white border-slate-100 shadow-sm'}`}>
                         <span className='flex items-center justify-center size-11 rounded-xl shrink-0 text-2xl'
-                            style={{ backgroundColor: daDong ? '#0284c71a' : '#f1f5f9' }}>
+                            style={{ backgroundColor: daDong ? '#00A8A81a' : '#f1f5f9' }}>
                             {daDong ? '🎫' : '📍'}
                         </span>
                         <div className='min-w-0 flex-1'>
@@ -320,7 +320,7 @@ export default function TrangDiaDiem() {
                         {!daDong && (
                             <button onClick={dongDauTaiDay} disabled={dangDong}
                                 className='flex items-center gap-2 text-white text-sm font-semibold px-5 py-2.5 rounded-full shrink-0 active:scale-95 transition disabled:opacity-60'
-                                style={{ backgroundColor: '#0284c7' }}>
+                                style={{ backgroundColor: '#00A8A8' }}>
                                 <Stamp size={15} /> {dangDong ? t('Đang kiểm…', 'Checking…', '核验中…') : t('Đóng dấu', 'Check in', '打卡')}
                             </button>
                         )}
