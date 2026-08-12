@@ -9,6 +9,10 @@
     "lint": "next lint",
     "tao-admin": "node --env-file=.env scripts/tao-admin.mjs",
     "tao-bang": "node --env-file=.env scripts/tao-bang.mjs",
+    "tao-bang-du-lich": "node --env-file=.env scripts/tao-bang-du-lich.mjs",
+    "nap-dia-diem": "node --env-file=.env scripts/nap-dia-diem.mjs",
+    "nap-lo-trinh": "node --env-file=.env scripts/nap-lo-trinh.mjs",
+    "xoa-bang-cu": "node --env-file=.env scripts/xoa-bang-cu.mjs",
     "nap-du-lieu": "node --env-file=.env scripts/nap-du-lieu.mjs",
     "seed-do-an": "node --env-file=.env scripts/seed-do-an.mjs"
   },

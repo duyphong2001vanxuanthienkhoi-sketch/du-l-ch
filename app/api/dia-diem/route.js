@@ -1,52 +1,34 @@
 import { NextResponse } from 'next/server'
-import { layGianCuaDiaDiem, layQuanCuaDiaDiem } from '@/lib/server/diaDiemDb'
-import { danhSachGian } from '@/lib/server/storeDb'
-import { danhSachQuanAn } from '@/lib/server/quanAnDb'
+import { danhSachDiaDiem, timDiaDiemTheoId, tangLuotXem } from '@/lib/server/diaDiemDb'
 
-// GET /api/dia-diem?id=<diaDiemId>
-// API công khai — trả các GIAN HÀNG và QUÁN ĂN gần đó mà admin đã gắn cho địa điểm.
-// Chỉ trả mục 'da_duyet' (bị gỡ duyệt sau khi gắn sẽ tự biến mất khỏi đây).
+// API CÔNG KHAI của địa điểm — không cần đăng nhập (guest-first).
+//
+// GET /api/dia-diem              -> { diaDiems }  danh sách ĐÃ DUYỆT, lọc ?loai=
+// GET /api/dia-diem?id=<slug>    -> { diaDiem }   chi tiết một địa điểm
+//
+// Chưa chạy `npm run tao-bang-du-lich` thì trả rỗng thay vì lỗi 500, để giao diện
+// hiện trạng thái "chưa có địa điểm nào" thay vì màn hình vỡ.
 export async function GET(request) {
     const id = request.nextUrl.searchParams.get('id')
-    if (!id) return NextResponse.json({ error: 'Thiếu id địa điểm' }, { status: 400 })
 
-    const storeIds = await layGianCuaDiaDiem(id)
-    const daDuyet = await danhSachGian({ status: 'da_duyet' })
-    const gianTheoId = Object.fromEntries(daDuyet.map(g => [g.id, g]))
+    if (!id) {
+        const loai = request.nextUrl.searchParams.get('loai') || undefined
+        try {
+            return NextResponse.json({ diaDiems: await danhSachDiaDiem({ status: 'da_duyet', loai }) })
+        } catch {
+            return NextResponse.json({ diaDiems: [] })
+        }
+    }
 
-    // Giữ đúng thứ tự admin đã gắn, chỉ trả trường công khai
-    const stores = storeIds
-        .map(sid => gianTheoId[sid])
-        .filter(Boolean)
-        .map(g => ({
-            id: g.id,
-            tenGian: g.tenGian,
-            tenChu: g.tenChu,
-            soDienThoai: g.soDienThoai,
-            loaiGian: g.loaiGian,
-            moTa: g.moTa,
-            logo: g.logo,
-        }))
-
-    // Quán ăn gần đó — bọc riêng để khi chưa có bảng quán vẫn trả gian bình thường
-    let quanAns = []
     try {
-        const quanIds = await layQuanCuaDiaDiem(id)
-        const quanDaDuyet = await danhSachQuanAn({ status: 'da_duyet' })
-        const quanTheoId = Object.fromEntries(quanDaDuyet.map(q => [q.id, q]))
-        quanAns = quanIds
-            .map(qid => quanTheoId[qid])
-            .filter(Boolean)
-            .map(q => ({
-                id: q.id,
-                ten: q.ten,
-                moTa: q.moTa,
-                diaChi: q.diaChi,
-                gioMoCua: q.gioMoCua,
-                gioDongCua: q.gioDongCua,
-                logo: q.logo,
-            }))
-    } catch { quanAns = [] }
-
-    return NextResponse.json({ stores, quanAns })
+        const diaDiem = await timDiaDiemTheoId(id)
+        if (!diaDiem || diaDiem.status !== 'da_duyet') {
+            return NextResponse.json({ error: 'Không tìm thấy địa điểm' }, { status: 404 })
+        }
+        // Đếm lượt xem — hàm tự nuốt lỗi, không chặn trả kết quả
+        tangLuotXem(id)
+        return NextResponse.json({ diaDiem })
+    } catch {
+        return NextResponse.json({ error: 'Không tải được địa điểm' }, { status: 500 })
+    }
 }

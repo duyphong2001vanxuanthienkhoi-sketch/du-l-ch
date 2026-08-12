@@ -45,7 +45,7 @@ export async function POST(request) {
 
             await guiEmail({
                 den: user.email,
-                tieuDe: 'Đặt lại mật khẩu — Chợ Số Hồng Gai',
+                tieuDe: 'Đặt lại mật khẩu — Khám Phá Hồng Gai',
                 html: khungEmail({
                     loiChao: `Chào ${user.name},`,
                     noiDung: 'Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Bấm nút bên dưới để tạo mật khẩu mới. Liên kết có hiệu lực trong <b>30 phút</b>.',

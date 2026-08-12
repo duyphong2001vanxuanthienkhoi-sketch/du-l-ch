@@ -8,7 +8,7 @@ export default function robots() {
         rules: [{
             userAgent: '*',
             allow: '/',
-            disallow: ['/admin', '/store', '/quan-an', '/api', '/cart', '/orders', '/tai-khoan', '/tin-nhan', '/don-do-an', '/login', '/dat-lai-mat-khau', '/quen-mat-khau'],
+            disallow: ['/admin', '/api', '/tai-khoan', '/login', '/dat-lai-mat-khau', '/quen-mat-khau'],
         }],
         sitemap: `${goc}/sitemap.xml`,
     }

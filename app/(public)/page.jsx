@@ -1,153 +1,287 @@
 'use client'
-import { useEffect, useRef, useState } from "react"
-import Hero from "@/components/Hero"
-import TrangChuApp from "@/components/TrangChuApp"
-import SanPhamNoiBat from "@/components/SanPhamNoiBat"
-import GianHang from "@/components/GianHang"
-import BanDoSo from "@/components/BanDoSo"
-import GianHangDaDuyet from "@/components/GianHangDaDuyet"
-import LoiVaoQuanLy from "@/components/LoiVaoQuanLy"
-import DiemDenNoiBat from "@/components/DiemDenNoiBat"
-import OurSpecs from "@/components/OurSpec"
-import Newsletter from "@/components/Newsletter"
-import HienKhiCuon from "@/components/HienKhiCuon"
-import { SongNgan } from "@/components/HoaTietSong"
-import { BangGreenSMNoiBat } from "@/components/GreenSM"
-import { useNgonNgu } from "@/lib/i18n"
+import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowRight, Compass, Map as MapIcon, MapPin, Search } from 'lucide-react'
+import TheDiaDiem from '@/components/TheDiaDiem'
+import ChipLoaiHinh from '@/components/ChipLoaiHinh'
+import AnhDiaDiem from '@/components/AnhDiaDiem'
+import Anh from '@/components/Anh'
+import { LuoiDiaDiemSkeleton } from '@/components/Skeleton'
+import { SongNgan } from '@/components/HoaTietSong'
+import { useNgonNgu } from '@/lib/i18n'
+import { LOAI_DIA_DIEM } from '@/lib/diaDiemLoai'
+import { useDiaDiem, dangMoCua } from '@/lib/utils/diaDiemClient'
 
-// Các khu ở trang chủ — nay hiện CÙNG LÚC (không còn ẩn sau tab).
-// Thanh trên chỉ để "nhảy nhanh" tới đúng khu khi bấm.
-// Icon dùng ảnh thương hiệu (đã tách nền) — Bản Đồ Số mượn icon Khám phá (có ghim bản đồ)
-const KHU = [
-    { id: 'cho-tuoi', label: ['Chợ Tươi', 'Fresh Market', '鲜市'], icon: '/thuong-hieu/tile-cho-tuoi.webp', accent: '#059669' },
-    { id: 'qua', label: ['Quà Quảng Ninh', 'Quang Ninh Gifts', '广宁礼品'], icon: '/thuong-hieu/tile-qua.webp', accent: '#d97706' },
-    { id: 'ban-do', label: ['Bản Đồ Số', 'Digital Map', '数字地图'], icon: '/thuong-hieu/tile-kham-pha.webp', accent: '#0284c7' },
-]
+// TRANG CHỦ app du lịch Hồng Gai.
+// Trục: hỏi khách "đi đâu / ăn gì" ngay từ màn hình đầu, rồi mới tới nội dung.
+// Không còn khu Chợ Tươi / Quà Quảng Ninh / giỏ hàng — app này không bán hàng.
 
-export default function Home() {
+// Một khu nội dung: tiêu đề + link xem tất cả + dải cuộn ngang
+const Khu = ({ tieuDe, moTa, mau, href, nhanHet, children }) => (
+    <section className='max-w-6xl mx-auto px-5 mt-12'>
+        <div className='flex items-end justify-between gap-4 mb-4'>
+            <div>
+                <h2 className='text-xl sm:text-2xl font-bold text-slate-800'>{tieuDe}</h2>
+                {moTa && <p className='text-sm text-slate-500 mt-1'>{moTa}</p>}
+            </div>
+            {href && (
+                <Link href={href} className='flex items-center gap-1 text-sm font-semibold shrink-0 hover:gap-2 transition-all'
+                    style={{ color: mau }}>
+                    {nhanHet} <ArrowRight size={14} />
+                </Link>
+            )}
+        </div>
+        {children}
+    </section>
+)
+
+export default function TrangChu() {
     const { t } = useNgonNgu()
-    const [khuHienTai, setKhuHienTai] = useState('cho-tuoi')
-    const boQuaSpy = useRef(false) // khi bấm nút nhảy, tạm khóa scroll-spy cho khỏi nhấp nháy
+    const router = useRouter()
+    const { ds, dangTai } = useDiaDiem()
+    const [tuKhoa, setTuKhoa] = useState('')
+    const [lts, setLts] = useState([])
+    const [sks, setSks] = useState([])
 
-    // Nhảy tới khu khi bấm nút (chừa chỗ cho thanh nhảy nhanh dính trên)
-    const nhayToi = (id) => {
-        const el = document.getElementById(`khu-${id}`)
-        if (!el) return
-        setKhuHienTai(id)
-        boQuaSpy.current = true
-        const top = el.getBoundingClientRect().top + window.scrollY - 64
-        window.scrollTo({ top, behavior: 'smooth' })
-        setTimeout(() => { boQuaSpy.current = false }, 700)
-    }
-
-    // Tự sáng nút của khu đang xem khi cuộn
     useEffect(() => {
-        const obs = new IntersectionObserver((entries) => {
-            if (boQuaSpy.current) return
-            for (const e of entries) {
-                if (e.isIntersecting) setKhuHienTai(e.target.id.replace('khu-', ''))
-            }
-        }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 })
-
-        KHU.forEach(k => {
-            const el = document.getElementById(`khu-${k.id}`)
-            if (el) obs.observe(el)
-        })
-        return () => obs.disconnect()
+        fetch('/api/lo-trinh').then(r => r.json()).then(d => setLts(d.loTrinhs || [])).catch(() => { })
+        fetch('/api/su-kien').then(r => r.json()).then(d => setSks(d.suKiens || [])).catch(() => { })
     }, [])
 
+    const timKiem = (e) => {
+        e.preventDefault()
+        router.push(tuKhoa.trim() ? `/kham-pha?q=${encodeURIComponent(tuKhoa.trim())}` : '/kham-pha')
+    }
+
+    const dem = useMemo(() => {
+        const kq = {}
+        for (const d of ds) kq[d.loai] = (kq[d.loai] || 0) + 1
+        return kq
+    }, [ds])
+
+    // Ảnh nền đầu trang: lấy địa điểm nổi bật nhất có ảnh
+    const anhNen = ds.find(d => d.anhBia) || ds[0] || null
+
+    const anUong = ds.filter(d => d.loai === 'an_uong' || d.loai === 'ca_phe')
+    const noiBat = [...ds].sort((a, b) => (b.noiBat || 0) - (a.noiBat || 0)).slice(0, 6)
+    const tamLinh = ds.filter(d => d.loai === 'tam_linh' || d.loai === 'di_tich')
+    const dangMoGio = ds.filter(d => dangMoCua(d) === true).slice(0, 8)
+
     return (
-        <div>
-            {/* Điện thoại: đầu trang kiểu app. Máy tính: Hero web */}
-            <TrangChuApp />
-            <div className="hidden sm:block">
-                <Hero />
-            </div>
+        <div className='mb-28'>
+            {/* ---------- ĐẦU TRANG ---------- */}
+            <section className='relative'>
+                <div className='absolute inset-0' aria-hidden='true'>
+                    {anhNen ? (
+                        anhNen.anhBia
+                            ? <Anh src={anhNen.anhBia} alt='' className='w-full h-full object-cover' uuTien />
+                            : <AnhDiaDiem id={anhNen.id} alt='' className='w-full h-full object-cover'
+                                fallback={<span className='block w-full h-full' style={{ background: 'linear-gradient(135deg,#0369a1,#0c4a6e)' }} />} />
+                    ) : (
+                        <span className='block w-full h-full' style={{ background: 'linear-gradient(135deg,#0369a1,#0c4a6e)' }} />
+                    )}
+                </div>
+                <div className='absolute inset-0' aria-hidden='true'
+                    style={{ background: 'linear-gradient(180deg, rgba(8,37,64,.55) 0%, rgba(8,37,64,.60) 45%, rgba(8,37,64,.88) 100%)' }} />
 
-            {/* Lối vào khu quản lý — hiện riêng theo vai trò (admin / tiểu thương / chủ quán).
-                Bản mobile nằm trong TrangChuApp (ngay dưới ô danh mục) cho dễ thấy. */}
-            <div className='hidden sm:block'>
-                <LoiVaoQuanLy />
-            </div>
+                <div className='relative max-w-6xl mx-auto px-5 pt-14 pb-10 sm:pt-20 sm:pb-14'>
+                    <span className='inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3.5 py-1.5 rounded-full backdrop-blur-sm'
+                        style={{ background: 'rgba(255,255,255,.18)' }}>
+                        <MapPin size={13} /> {t('Phường Hồng Gai · Quảng Ninh', 'Hong Gai Ward · Quang Ninh', '鸿基坊 · 广宁')}
+                    </span>
+                    <h1 className='text-4xl sm:text-6xl chu-hien-thi text-white mt-3 can-dong'>
+                        {t('Khám phá Hồng Gai', 'Explore Hong Gai', '探索鸿基')}
+                    </h1>
+                    <p className='text-white/80 mt-3 leading-relaxed text-sm sm:text-lg max-w-2xl'>
+                        {t('Ăn gì, chơi đâu, lễ chùa nào — cẩm nang du lịch cho vùng đất bên vịnh Hạ Long.',
+                            'What to eat, where to go, which pagoda to visit — a travel guide to the land beside Ha Long Bay.',
+                            '吃什么、去哪儿、拜哪座寺 —— 下龙湾畔这片土地的旅游指南。')}
+                    </p>
 
-            {/* Sản phẩm nổi bật — hiện ngay cho khách trên máy tính */}
-            <SanPhamNoiBat />
-
-            {/* Đối tác giao vận Green SM (máy tính) — bản mobile gọn nằm trong TrangChuApp */}
-            <div className='hidden sm:block max-w-6xl mx-auto px-6 mt-10'>
-                <BangGreenSMNoiBat
-                    tieuDe={t('Giao hàng, đặt xe cùng Green SM', 'Delivery & rides with Green SM', 'Green SM 送货 · 叫车')}
-                    moTa={t('Đối tác xe điện — giao hàng & đặt xe tận nơi tại Hồng Gai, xanh và thân thiện môi trường', 'Electric-vehicle partner — delivery & ride-hailing in Hong Gai, green and eco-friendly', '电动车合作伙伴 —— 鸿基送货与叫车，绿色环保')}
-                    nhanNut={t('Đặt xe ngay', 'Book a ride', '立即叫车')} />
-            </div>
-
-            {/* Thanh nhảy nhanh tới từng khu (các khu đều hiện sẵn bên dưới) */}
-            <div className='sticky top-0 z-30 bg-white/85 backdrop-blur-md border-y border-slate-100 shadow-sm'>
-                <div className='max-w-6xl mx-auto px-4 sm:px-6 flex items-center sm:justify-center gap-2 sm:gap-3 py-3 overflow-x-auto no-scrollbar'>
-                    {KHU.map(k => (
-                        <button
-                            key={k.id}
-                            onClick={() => nhayToi(k.id)}
-                            className={`flex items-center gap-2 whitespace-nowrap rounded-full pl-2.5 pr-4 sm:pr-6 py-1.5 text-sm font-semibold transition-all active:scale-95 ${khuHienTai === k.id ? 'text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                            style={khuHienTai === k.id ? { backgroundColor: k.accent, boxShadow: `0 8px 20px -6px ${k.accent}aa` } : {}}
-                        >
-                            <span className={`flex items-center justify-center size-7 rounded-full shrink-0 ${khuHienTai === k.id ? 'bg-white/20' : 'bg-white'}`}>
-                                <img src={k.icon} alt='' className='w-5 h-5 object-contain' />
-                            </span>
-                            {t(...k.label)}
+                    <form onSubmit={timKiem}
+                        className='flex items-center gap-2.5 bg-white rounded-full px-5 py-3.5 mt-6 shadow-xl max-w-xl'>
+                        <Search size={19} className='text-slate-400 shrink-0' />
+                        <input value={tuKhoa} onChange={e => setTuKhoa(e.target.value)}
+                            placeholder={t('Tìm địa điểm, quán ăn, chùa...', 'Search places, food, pagodas...', '搜索地点、美食、寺庙…')}
+                            className='w-full bg-transparent outline-none text-sm placeholder-slate-400' />
+                        <button type='submit'
+                            className='text-white text-sm font-semibold px-5 py-2 rounded-full bg-sky-600 hover:bg-sky-700 active:scale-95 transition shrink-0'>
+                            {t('Tìm', 'Search', '搜索')}
                         </button>
-                    ))}
+                    </form>
+
+                    <div className='flex flex-wrap gap-2 mt-4'>
+                        {LOAI_DIA_DIEM.slice(0, 6).map(l => (
+                            <Link key={l.id} href={`/kham-pha?loai=${l.id}`}
+                                className='flex items-center gap-1.5 text-xs font-semibold text-white px-3.5 py-2 rounded-full backdrop-blur-sm transition hover:bg-white/30'
+                                style={{ background: 'rgba(255,255,255,.16)' }}>
+                                <span aria-hidden='true'>{l.icon}</span> {t(...l.ten)}
+                            </Link>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            {/* KHU CHỢ TƯƠI */}
-            <div id='khu-cho-tuoi' className='scroll-mt-16'>
-                <HienKhiCuon>
-                <GianHang
-                    title={t("Chợ Tươi", "Fresh Market", "鲜市")}
-                    subtitle={t("Hải sản đánh bắt hằng ngày từ vịnh Hạ Long — giao tận nơi trong ngày tại Hồng Gai và lân cận", "Seafood caught daily from Ha Long Bay — same-day delivery in Hong Gai and nearby", "每日从下龙湾捕捞的海鲜 —— 鸿基及周边当日送达")}
-                    icon="/thuong-hieu/tile-cho-tuoi.webp"
-                    badge={t("Giao hôm nay", "Delivered today", "今日送达")}
-                    accentColor="#059669"
-                    bgColor="linear-gradient(135deg, #ecfdf5, #d1fae5)"
-                    loai="cho_tuoi"
-                />
-                <GianHangDaDuyet loai="cho_tuoi" accentColor="#059669" />
-                </HienKhiCuon>
-            </div>
+            {/* ---------- BẢN ĐỒ ---------- */}
+            <section className='max-w-6xl mx-auto px-5 mt-8'>
+                <Link href='/ban-do'
+                    className='group flex items-center gap-4 rounded-2xl p-5 border border-sky-100 shadow-sm hover:shadow-md transition'
+                    style={{ background: 'linear-gradient(135deg,#f0f9ff,#dbeafe)' }}>
+                    <span className='flex items-center justify-center size-14 rounded-2xl bg-white shadow-sm shrink-0 text-sky-600'>
+                        <MapIcon size={26} />
+                    </span>
+                    <div className='min-w-0 flex-1'>
+                        <h2 className='font-bold text-slate-800'>{t('Bản đồ Hồng Gai', 'Hong Gai map', '鸿基地图')}</h2>
+                        <p className='text-sm text-slate-500 mt-0.5'>
+                            {t('Xem tất cả địa điểm trên bản đồ, lọc theo loại hình và tìm chỗ gần bạn.',
+                                'See every place on the map, filter by type and find what is near you.',
+                                '在地图上查看所有地点，按类型筛选并查找附近。')}
+                        </p>
+                    </div>
+                    <ArrowRight size={20} className='text-sky-600 shrink-0 group-hover:translate-x-1 transition-transform' />
+                </Link>
+            </section>
 
-            {/* KHU QUÀ QUẢNG NINH */}
-            <div id='khu-qua' className='scroll-mt-16'>
-                <HienKhiCuon>
-                <GianHang
-                    title={t("Quà Quảng Ninh", "Quang Ninh Gifts", "广宁礼品")}
-                    subtitle={t("Đặc sản, hải sản khô, quà lưu niệm chính gốc — đóng gói đẹp, gửi đi khắp mọi miền", "Specialties, dried seafood, authentic souvenirs — nicely packed, shipped nationwide", "特产、海鲜干货、正宗纪念品 —— 精美包装，全国寄送")}
-                    icon="/thuong-hieu/tile-qua.webp"
-                    badge={t("Đặc sản", "Specialty", "特产")}
-                    accentColor="#d97706"
-                    bgColor="linear-gradient(135deg, #fffbeb, #fef3c7)"
-                    loai="qua_quang_ninh"
-                />
-                <GianHangDaDuyet loai="qua_quang_ninh" accentColor="#d97706" />
-                </HienKhiCuon>
-            </div>
+            {/* ---------- THANH LOẠI HÌNH ---------- */}
+            {!dangTai && ds.length > 0 && (
+                <section className='max-w-6xl mx-auto px-5 mt-8'>
+                    <h2 className='text-xl font-bold text-slate-800 mb-3'>{t('Bạn muốn đi đâu?', 'What are you looking for?', '你想去哪儿？')}</h2>
+                    <ChipLoaiHinh chon='' dem={dem}
+                        onChon={(id) => router.push(id ? `/kham-pha?loai=${id}` : '/kham-pha')} />
+                </section>
+            )}
 
-            {/* KHU BẢN ĐỒ SỐ */}
-            <div id='khu-ban-do' className='scroll-mt-16'>
-                <BanDoSo />
-            </div>
-
-            {/* Khối gợi ý điểm đến — nằm trên "mặt vịnh" xanh nhạt, sóng lượn hai đầu */}
-            <HienKhiCuon>
-                <SongNgan mau='#f0f9ff' className='mt-10' />
-                <div className='py-1' style={{ background: '#f0f9ff' }}>
-                    <DiemDenNoiBat />
+            {/* ---------- ĐANG TẢI ---------- */}
+            {dangTai && (
+                <div className='max-w-6xl mx-auto px-5 mt-10'>
+                    <LuoiDiaDiemSkeleton soThe={3} />
                 </div>
-                <SongNgan mau='#f0f9ff' lat />
-            </HienKhiCuon>
+            )}
 
-            <HienKhiCuon><OurSpecs /></HienKhiCuon>
-            <HienKhiCuon><Newsletter /></HienKhiCuon>
+            {/* ---------- LỘ TRÌNH GỢI Ý ---------- */}
+            {lts.length > 0 && (
+                <Khu tieuDe={t('Đi đâu hôm nay?', 'Where to today?', '今天去哪儿？')}
+                    moTa={t('Lộ trình dựng sẵn theo giờ — khỏi phải tự sắp',
+                        'Hour-by-hour itineraries — no planning needed',
+                        '按时段编排好的行程 —— 无需自己安排')}
+                    mau='#7c3aed' href='/lo-trinh' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
+                        {lts.slice(0, 6).map(lt => {
+                            const mau = lt.mau || '#7c3aed'
+                            return (
+                                <Link key={lt.id} href={`/lo-trinh/${lt.id}`}
+                                    className='the-dd group w-64 shrink-0 rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all'
+                                    style={{ background: `linear-gradient(135deg, ${mau}12, ${mau}28)` }}>
+                                    <span className='text-3xl'>{lt.icon || '🗺️'}</span>
+                                    <h3 className='font-bold text-slate-800 mt-2 can-dong'>{t(...lt.ten)}</h3>
+                                    <p className='text-xs text-slate-500 mt-1'>
+                                        {t(`${lt.diem?.length || 0} điểm`, `${lt.diem?.length || 0} stops`, `${lt.diem?.length || 0} 站`)}
+                                        {t(...(lt.thoiLuong || [])) && ` · ${t(...lt.thoiLuong)}`}
+                                    </p>
+                                    <p className='text-sm text-slate-600 mt-2 line-clamp-3 leading-relaxed'>{t(...lt.mota)}</p>
+                                    <span className='inline-flex items-center gap-1.5 text-sm font-semibold mt-3 group-hover:gap-2.5 transition-all' style={{ color: mau }}>
+                                        {t('Xem lộ trình', 'View route', '查看行程')} <ArrowRight size={14} />
+                                    </span>
+                                </Link>
+                            )
+                        })}
+                    </div>
+                </Khu>
+            )}
+
+            {/* ---------- LỄ HỘI SẮP TỚI ---------- */}
+            {sks.length > 0 && (
+                <Khu tieuDe={t('Lễ hội ở Hồng Gai', 'Festivals in Hong Gai', '鸿基庙会')}
+                    moTa={t('Canh đúng dịp thì chuyến đi khác hẳn', 'Timing your trip right changes everything', '赶上日子，旅程大不相同')}
+                    mau='#dc2626' href='/su-kien' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                    <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                        {sks.slice(0, 3).map(sk => {
+                            const mau = sk.mau || '#dc2626'
+                            return (
+                                <Link key={sk.id} href='/su-kien'
+                                    className='the-dd group flex items-start gap-3.5 bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition'>
+                                    <span className='flex items-center justify-center size-11 rounded-xl shrink-0 text-2xl'
+                                        style={{ backgroundColor: mau + '1a' }}>{sk.icon || '🎏'}</span>
+                                    <div className='min-w-0'>
+                                        <p className='font-semibold text-slate-800 can-dong'>{t(...sk.ten)}</p>
+                                        <p className='text-xs font-semibold mt-1' style={{ color: mau }}>{t(...sk.ghiChuNgay)}</p>
+                                    </div>
+                                </Link>
+                            )
+                        })}
+                    </div>
+                </Khu>
+            )}
+
+            {/* ---------- ĐANG MỞ CỬA ---------- */}
+            {dangMoGio.length > 0 && (
+                <Khu tieuDe={t('Đang mở cửa lúc này', 'Open right now', '现在营业中')}
+                    moTa={t('Ghé được ngay bây giờ', 'You can go right now', '现在就能去')}
+                    mau='#059669' href='/kham-pha' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
+                        {dangMoGio.map(d => <TheDiaDiem key={d.id} d={d} kieu='dai' />)}
+                    </div>
+                </Khu>
+            )}
+
+            {/* ---------- ĂN UỐNG ---------- */}
+            {anUong.length > 0 && (
+                <Khu tieuDe={t('Ăn gì ở Hồng Gai', 'What to eat in Hong Gai', '鸿基吃什么')}
+                    moTa={t('Hải sản bến Hòn Gai, bún bề bề, chả mực và cà phê view vịnh',
+                        'Hon Gai seafood, mantis shrimp noodles, squid cake and bay-view cafés',
+                        '鸿街海鲜、虾蛄米粉、墨鱼饼与海景咖啡')}
+                    mau='#ea580c' href='/kham-pha?loai=an_uong' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
+                        {anUong.map(d => <TheDiaDiem key={d.id} d={d} kieu='dai' />)}
+                    </div>
+                </Khu>
+            )}
+
+            {/* ---------- ĐIỂM ĐẾN NỔI BẬT ---------- */}
+            {noiBat.length > 0 && (
+                <>
+                    <SongNgan mau='#f0f9ff' className='mt-12' />
+                    <div style={{ background: '#f0f9ff' }} className='py-2'>
+                        <Khu tieuDe={t('Điểm đến nổi bật', 'Featured destinations', '热门景点')}
+                            moTa={t('Những nơi không nên bỏ lỡ khi đến Hồng Gai', 'Not to be missed in Hong Gai', '来鸿基不容错过')}
+                            mau='#0284c7' href='/kham-pha' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                            <div className='luoi-dd grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
+                                {noiBat.map(d => <TheDiaDiem key={d.id} d={d} />)}
+                            </div>
+                        </Khu>
+                    </div>
+                    <SongNgan mau='#f0f9ff' lat />
+                </>
+            )}
+
+            {/* ---------- TÂM LINH & DI TÍCH ---------- */}
+            {tamLinh.length > 0 && (
+                <Khu tieuDe={t('Tâm linh & di tích', 'Temples & heritage', '灵修与古迹')}
+                    moTa={t('Chùa Long Tiên, đền Đức Ông, bút tích thơ cổ trên vách núi Bài Thơ',
+                        'Long Tien Pagoda, Duc Ong Temple, ancient poems carved on Bai Tho Mountain',
+                        '龙仙寺、德翁庙、诗山崖壁上的古诗题刻')}
+                    mau='#d97706' href='/kham-pha?loai=tam_linh' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
+                        {tamLinh.map(d => <TheDiaDiem key={d.id} d={d} kieu='dai' />)}
+                    </div>
+                </Khu>
+            )}
+
+            {/* ---------- CHƯA CÓ DỮ LIỆU ---------- */}
+            {!dangTai && !ds.length && (
+                <section className='max-w-2xl mx-auto px-5 mt-12 text-center'>
+                    <Compass size={40} className='mx-auto text-slate-300' />
+                    <h2 className='text-lg font-semibold text-slate-700 mt-4'>
+                        {t('Chưa có địa điểm nào', 'No places yet', '还没有地点')}
+                    </h2>
+                    <p className='text-sm text-slate-400 mt-1.5'>
+                        {t('Quản trị viên vào /admin/dia-diem để nạp dữ liệu địa điểm.',
+                            'An administrator can load place data at /admin/dia-diem.',
+                            '管理员可在 /admin/dia-diem 载入地点数据。')}
+                    </p>
+                </section>
+            )}
         </div>
     )
 }

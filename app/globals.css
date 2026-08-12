@@ -626,3 +626,68 @@
 .pdd-nut a:active {
     transform: scale(0.96);
 }
+/* ============ App Du Lịch — thẻ địa điểm & bộ lọc ============ */
+
+/* Chấm vị trí của khách trên bản đồ (components/BanDo.jsx) */
+.ghim-toi {
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #2563eb;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 4px rgb(37 99 235 / 0.25);
+}
+
+/* Tiêu đề thẻ: cân dòng cho khỏi rơi 1 chữ xuống dòng cuối.
+   Trình duyệt chưa hỗ trợ thì chỉ xuống dòng như thường — không vỡ gì. */
+.can-dong {
+    text-wrap: balance;
+}
+
+/* Thanh chip loại hình: dừng đúng chip khi vuốt, và không kéo lây cả trang */
+.cuon-chip {
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+    scroll-padding-left: 4px;
+}
+.cuon-chip > * {
+    scroll-snap-align: start;
+}
+
+/* Danh sách địa điểm dài: chỉ dựng phần đang nhìn thấy cho mượt.
+   contain-intrinsic-size giữ chỗ trước để thanh cuộn không nhảy giật. */
+.luoi-dd > * {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 320px;
+}
+
+/* Thẻ tự hiện dần khi cuộn tới — THUẦN CSS, chạy trên compositor.
+   Thay cho component HienKhiCuon (IntersectionObserver bằng JS).
+   Trình duyệt chưa hỗ trợ scroll-driven animation thì thẻ hiện bình thường. */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .the-dd {
+            animation: dd-hien-len linear both;
+            animation-timeline: view();
+            animation-range: entry 0% entry 40%;
+        }
+    }
+}
+@keyframes dd-hien-len {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Ghim đánh SỐ CHẶNG trên bản đồ lộ trình (components/BanDo.jsx soThuTu) */
+.ghim-so {
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--mau);
+}

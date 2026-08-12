@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from "next/navigation"
-import { ArrowUpDownIcon, HomeIcon, LifeBuoyIcon, MapPinIcon, ReceiptTextIcon, ShieldCheckIcon, StoreIcon, TicketPercentIcon, UtensilsCrossedIcon } from "lucide-react"
+import { CalendarDaysIcon, HomeIcon, MapPinIcon, RouteIcon, UploadIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { assets } from "@/assets/assets"
@@ -14,14 +14,10 @@ const AdminSidebar = () => {
 
     const sidebarLinks = [
         { name: t('Tổng quan', 'Overview', '概览'), href: '/admin', icon: HomeIcon },
-        { name: t('Gian hàng', 'Stores', '店铺'), href: '/admin/stores', icon: StoreIcon },
-        { name: t('Sắp xếp trang chủ', 'Home layout', '首页排序'), href: '/admin/sap-xep', icon: ArrowUpDownIcon },
-        { name: t('Duyệt gian hàng', 'Approve stores', '审核店铺'), href: '/admin/approve', icon: ShieldCheckIcon },
-        { name: t('Duyệt quán ăn', 'Approve eateries', '审核餐馆'), href: '/admin/quan-an', icon: UtensilsCrossedIcon },
-        { name: t('Đơn hàng', 'Orders', '订单'), href: '/admin/orders', icon: ReceiptTextIcon },
-        { name: t('Hỗ trợ khách', 'Support', '客户支持'), href: '/admin/ho-tro', icon: LifeBuoyIcon },
-        { name: t('Bản đồ số', 'Digital map', '数字地图'), href: '/admin/dia-diem', icon: MapPinIcon },
-        { name: t('Mã giảm giá', 'Coupons', '优惠券'), href: '/admin/coupons', icon: TicketPercentIcon  },
+        { name: t('Địa điểm', 'Places', '地点'), href: '/admin/dia-diem', icon: MapPinIcon },
+        { name: t('Nhập từ Sheets', 'Import from Sheets', '从表格导入'), href: '/admin/nhap', icon: UploadIcon },
+        { name: t('Lộ trình', 'Itineraries', '行程'), href: '/admin/lo-trinh', icon: RouteIcon },
+        { name: t('Sự kiện', 'Events', '活动'), href: '/admin/su-kien', icon: CalendarDaysIcon },
     ]
 
     return (

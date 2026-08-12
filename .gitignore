@@ -52,3 +52,6 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# Sao lưu bảng cũ trước khi xoá (scripts/xoa-bang-cu.mjs)
+sao-luu/

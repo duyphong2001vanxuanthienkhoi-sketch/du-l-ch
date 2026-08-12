@@ -1,79 +1,208 @@
 'use client'
-import Link from 'next/link'
-import { ArrowRight, MapPin } from 'lucide-react'
-import BanDoSo from '@/components/BanDoSo'
-import BiaDiaDiem from '@/components/BiaDiaDiem'
-import AnhDiaDiem from '@/components/AnhDiaDiem'
-import { DIA_DIEM } from '@/lib/diaDiem'
+import { Suspense, useEffect, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { LayoutGrid, LocateFixed, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react'
+import dynamic from 'next/dynamic'
+import TheDiaDiem from '@/components/TheDiaDiem'
+import ChipLoaiHinh from '@/components/ChipLoaiHinh'
+import Loading from '@/components/Loading'
+import TrangRong from '@/components/TrangRong'
 import { useNgonNgu } from '@/lib/i18n'
+import { MUC_GIA, khoangCachKm } from '@/lib/diaDiemLoai'
+import { useDiaDiem, locDiaDiem, dangMoCua } from '@/lib/utils/diaDiemClient'
 
-// Trang Khám phá Hồng Gai — mục lục các địa điểm cho du khách:
-// bản đồ số ở trên, dưới là lưới thẻ dẫn vào trang giới thiệu từng địa điểm.
-export default function TrangKhamPha() {
+// Bản đồ nặng (Leaflet) nên tải LƯỜI, chỉ khi khách bật chế độ bản đồ.
+const BanDo = dynamic(() => import('@/components/BanDo'), {
+    ssr: false,
+    loading: () => <div className='w-full h-full bg-slate-100 animate-pulse rounded-2xl' />,
+})
+
+// Trang KHÁM PHÁ — mục lục địa điểm cho du khách.
+// Trên điện thoại, bản đồ và danh sách KHÔNG xếp chồng mà là nút CHUYỂN:
+// xếp chồng thì khách phải cuộn hết bản đồ mới thấy danh sách, mất trọn màn hình đầu.
+
+function NoiDungKhamPha() {
     const { t } = useNgonNgu()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const { ds, dangTai } = useDiaDiem()
+
+    const [loai, setLoai] = useState('')
+    const [tuKhoa, setTuKhoa] = useState('')
+    const [mucGia, setMucGia] = useState('')
+    const [dangMo, setDangMo] = useState(false)
+    const [moLoc, setMoLoc] = useState(false)
+    const [cheDo, setCheDo] = useState('danh-sach')  // 'danh-sach' | 'ban-do'
+    const [chon, setChon] = useState(null)
+    const [viTriToi, setViTriToi] = useState(null)
+
+    // Nhận ?loai= từ URL (tab Ăn uống ở thanh dưới, link từ trang chủ)
+    useEffect(() => {
+        setLoai(searchParams.get('loai') || '')
+    }, [searchParams])
+
+    const doiLoai = (id) => {
+        setLoai(id)
+        // Ghi vào URL để chia sẻ được và tab dưới sáng đúng — không tải lại trang
+        router.replace(id ? `/kham-pha?loai=${id}` : '/kham-pha', { scroll: false })
+    }
+
+    const viTri = () => {
+        if (!navigator.geolocation) return
+        navigator.geolocation.getCurrentPosition(
+            p => setViTriToi([p.coords.latitude, p.coords.longitude]),
+            () => { /* khách từ chối thì thôi, không báo lỗi phiền */ },
+        )
+    }
+
+    // Đếm số địa điểm theo loại — để thanh chip ẩn loại chưa có gì và hiện số
+    const dem = useMemo(() => {
+        const kq = {}
+        for (const d of ds) kq[d.loai] = (kq[d.loai] || 0) + 1
+        return kq
+    }, [ds])
+
+    const ketQua = useMemo(() => {
+        const loc = locDiaDiem(ds, { tuKhoa, loai, mucGia, dangMo })
+        if (!viTriToi) return loc.map(d => ({ d, km: null }))
+        // Có vị trí khách -> kèm khoảng cách và xếp gần trước
+        return loc
+            .map(d => ({ d, km: d.viTri ? khoangCachKm(viTriToi, d.viTri) : null }))
+            .sort((a, b) => (a.km ?? 1e9) - (b.km ?? 1e9))
+    }, [ds, tuKhoa, loai, mucGia, dangMo, viTriToi])
+
+    const soLocDangBat = (mucGia ? 1 : 0) + (dangMo ? 1 : 0)
+
+    if (dangTai) return <Loading />
+
     return (
         <div className='min-h-[70vh] mb-28'>
-            {/* Đầu trang kiểu tạp chí du lịch — dùng CHÍNH ảnh thật của các địa điểm làm nền
-                (trước đây chỉ có chữ, phí bộ ảnh đẹp sẵn có), phủ lớp tối để chữ luôn đọc rõ. */}
-            <div className='max-w-6xl mx-auto px-6 mt-6'>
-                <div className='relative overflow-hidden rounded-3xl bong-mem min-h-[300px] sm:min-h-[380px] flex items-end'>
-                    {/* MỘT ảnh lớn làm nền (ảnh ghép nhiều tấm bị lộ đường nối, trông như collage
-                        chứ không sang). Lấy địa điểm biểu tượng đầu danh sách — núi Bài Thơ. */}
-                    <div className='absolute inset-0' aria-hidden='true'>
-                        <AnhDiaDiem id={DIA_DIEM[0].id} alt='' className='w-full h-full object-cover'
-                            fallback={<span className='block w-full h-full' style={{ background: `linear-gradient(135deg, ${DIA_DIEM[0].mau}66, ${DIA_DIEM[0].mau}cc)` }} />} />
-                    </div>
-                    {/* Lớp phủ chuyển dần: trong ở trên cho ảnh "thở", đậm dần xuống đáy nơi đặt chữ */}
-                    <div className='absolute inset-0' aria-hidden='true'
-                        style={{ background: 'linear-gradient(180deg, rgba(11,47,79,.10) 0%, rgba(11,47,79,.55) 55%, rgba(11,47,79,.88) 100%)' }} />
+            {/* Đầu trang */}
+            <div className='max-w-6xl mx-auto px-5 pt-6'>
+                <h1 className='text-3xl sm:text-4xl chu-hien-thi text-slate-800'>
+                    {t('Khám phá Hồng Gai', 'Explore Hong Gai', '探索鸿基')}
+                </h1>
+                <p className='text-slate-500 mt-1.5 text-sm sm:text-base max-w-2xl'>
+                    {t('Núi thiêng, chùa cổ, chợ biển, quán ngon và kỳ quan thế giới — tất cả trong bán kính vài cây số.',
+                        'Sacred mountains, ancient pagodas, sea markets, good food and a world wonder — all within a few kilometres.',
+                        '灵山、古寺、海市、美食与世界奇观 —— 皆在数公里之内。')}
+                </p>
 
-                    <div className='relative w-full px-6 sm:px-10 pb-8 sm:pb-10 pt-24 max-w-3xl'>
-                        <span className='inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3.5 py-1.5 rounded-full backdrop-blur-sm' style={{ background: 'rgba(255,255,255,.20)' }}>
-                            <MapPin size={13} /> {t('Cẩm nang du lịch Hồng Gai', 'Hong Gai travel guide', '鸿基旅游指南')}
-                        </span>
-                        <h1 className='text-3xl sm:text-5xl chu-hien-thi text-white mt-3'>{t('Khám phá Hồng Gai', 'Explore Hong Gai', '探索鸿基')}</h1>
-                        <p className='text-white/75 mt-2.5 leading-relaxed text-sm sm:text-base'>
-                            {t('Núi thiêng, chùa cổ, chợ biển và kỳ quan thế giới — tất cả trong bán kính vài cây số. Chọn một địa điểm để xem giới thiệu, cách đi và những gian hàng đặc sản đáng ghé gần đó.', 'Sacred mountains, ancient temples, sea markets and a world wonder — all within a few kilometers. Pick a place to see its intro, how to get there and nearby specialty stores worth a visit.', '灵山、古寺、海市与世界奇观 —— 皆在数公里之内。选一个地点查看介绍、路线和附近值得一逛的特产店。')}
-                        </p>
-                    </div>
+                {/* Ô tìm kiếm */}
+                <div className='flex items-center gap-2.5 bg-white border border-slate-200 rounded-full px-5 py-3 mt-5 shadow-sm max-w-xl'>
+                    <Search size={18} className='text-slate-400 shrink-0' />
+                    <input value={tuKhoa} onChange={e => setTuKhoa(e.target.value)}
+                        placeholder={t('Tìm địa điểm, quán ăn...', 'Search places, eateries...', '搜索地点、餐馆…')}
+                        className='w-full bg-transparent outline-none text-sm placeholder-slate-400' />
+                    {tuKhoa && (
+                        <button onClick={() => setTuKhoa('')} aria-label={t('Xoá', 'Clear', '清除')}
+                            className='text-slate-300 hover:text-slate-500 shrink-0'><X size={16} /></button>
+                    )}
                 </div>
             </div>
 
-            {/* Bản đồ số quen thuộc */}
-            <BanDoSo />
+            {/* Thanh chip loại hình + công cụ — DÍNH dưới đầu trang */}
+            <div className='sticky top-0 z-30 bg-white/90 backdrop-blur-md border-y border-slate-100 mt-5'>
+                <div className='max-w-6xl mx-auto px-5 py-3'>
+                    <ChipLoaiHinh chon={loai} onChon={doiLoai} dem={dem} />
 
-            {/* Lưới thẻ địa điểm */}
-            <div className='max-w-6xl mx-auto px-6'>
-                <h2 className='text-lg font-semibold text-slate-700 mb-4'>{t('Tất cả địa điểm', 'All destinations', '所有景点')} ({DIA_DIEM.length})</h2>
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
-                    {DIA_DIEM.map(d => (
-                        <Link key={d.id} href={`/dia-diem/${d.id}`}
-                            style={{ '--mau-bong': d.mau }}
-                            className='group rounded-3xl border border-slate-100 bg-white bong-mem hover:bong-theo-mau hover:-translate-y-1 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] overflow-hidden'>
-                            {/* Ảnh thật trên đầu thẻ; chưa có file ảnh thì hiện khối gradient + emoji cho đẹp */}
-                            <BiaDiaDiem d={d}
-                                className='w-full aspect-[16/8] group-hover:scale-[1.02] transition-transform' />
-                            <div className='flex items-center gap-4 px-5 py-5'
-                                style={{ background: `linear-gradient(135deg, ${d.mau}10, ${d.mau}24)` }}>
-                                <span className='flex items-center justify-center size-14 shrink-0 rounded-2xl overflow-hidden bg-white shadow-sm'>
-                                    <AnhDiaDiem id={d.id} alt={t(...d.ten)} className='w-full h-full object-cover'
-                                        fallback={<span className='flex items-center justify-center w-full h-full text-3xl'>{d.icon}</span>} />
-                                </span>
-                                <div className='min-w-0'>
-                                    <h3 className='font-bold text-slate-800 truncate'>{t(...d.ten)}</h3>
-                                    <span className='inline-block text-ti font-semibold px-2.5 py-0.5 rounded-full mt-1' style={{ backgroundColor: d.mau + '1a', color: d.mau }}>{t(...d.loai)}</span>
-                                </div>
-                            </div>
-                            <div className='px-5 py-4'>
-                                <p className='text-sm text-slate-600 line-clamp-3 leading-relaxed'>{t(...d.mota)}</p>
-                                <span className='inline-flex items-center gap-1.5 text-sm font-semibold mt-3 group-hover:gap-2.5 transition-all' style={{ color: d.mau }}>
-                                    {t('Xem giới thiệu & gian hàng gần đó', 'View intro & nearby stores', '查看介绍及附近店铺')} <ArrowRight size={14} />
-                                </span>
-                            </div>
-                        </Link>
-                    ))}
+                    <div className='flex items-center gap-2 mt-2.5 flex-wrap'>
+                        {/* Chuyển Danh sách <-> Bản đồ */}
+                        <div className='flex bg-slate-100 rounded-full p-1'>
+                            {[
+                                { id: 'danh-sach', nhan: t('Danh sách', 'List', '列表'), Icon: LayoutGrid },
+                                { id: 'ban-do', nhan: t('Bản đồ', 'Map', '地图'), Icon: MapIcon },
+                            ].map(m => (
+                                <button key={m.id} onClick={() => setCheDo(m.id)}
+                                    aria-pressed={cheDo === m.id}
+                                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition ${cheDo === m.id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'}`}>
+                                    <m.Icon size={14} /> {m.nhan}
+                                </button>
+                            ))}
+                        </div>
+
+                        <button onClick={() => setMoLoc(v => !v)}
+                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold border transition ${soLocDangBat ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200'}`}>
+                            <SlidersHorizontal size={14} /> {t('Bộ lọc', 'Filters', '筛选')}
+                            {soLocDangBat > 0 && <span className='bg-white/25 rounded-full px-1.5'>{soLocDangBat}</span>}
+                        </button>
+
+                        <button onClick={viTri}
+                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold border transition ${viTriToi ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-white text-slate-600 border-slate-200'}`}>
+                            <LocateFixed size={14} /> {viTriToi ? t('Đang xếp theo gần nhất', 'Sorted by distance', '按距离排序') : t('Gần tôi', 'Near me', '附近')}
+                        </button>
+
+                        <span className='text-xs text-slate-400 ml-auto'>
+                            {t(`${ketQua.length} địa điểm`, `${ketQua.length} places`, `${ketQua.length} 个地点`)}
+                        </span>
+                    </div>
+
+                    {/* Bảng lọc mở rộng */}
+                    {moLoc && (
+                        <div className='flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100'>
+                            <span className='text-xs font-semibold text-slate-500'>{t('Mức giá', 'Price', '价位')}:</span>
+                            {MUC_GIA.map(m => (
+                                <button key={m.id} onClick={() => setMucGia(mucGia === m.id ? '' : m.id)}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ${mucGia === m.id ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200'}`}>
+                                    {m.kyHieu ? `${m.kyHieu} · ` : ''}{t(...m.ten)}
+                                </button>
+                            ))}
+                            <button onClick={() => setDangMo(v => !v)}
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition ml-2 ${dangMo ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-200'}`}>
+                                {t('Đang mở cửa', 'Open now', '正在营业')}
+                            </button>
+                            {soLocDangBat > 0 && (
+                                <button onClick={() => { setMucGia(''); setDangMo(false) }}
+                                    className='text-xs text-slate-400 underline ml-1'>
+                                    {t('Xoá lọc', 'Clear', '清除')}
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
+            </div>
+
+            {/* Nội dung */}
+            <div className='max-w-6xl mx-auto px-5 mt-6'>
+                {!ds.length ? (
+                    <TrangRong Icon={MapPin} mau='#0284c7'
+                        tieuDe={t('Chưa có địa điểm nào', 'No places yet', '还没有地点')}
+                        moTa={t('Quản trị viên chưa nạp dữ liệu địa điểm. Vào /admin/dia-diem để thêm.',
+                            'No place data has been loaded yet.', '尚未载入地点数据。')} />
+                ) : !ketQua.length ? (
+                    <TrangRong Icon={Search} mau='#0284c7'
+                        tieuDe={t('Không tìm thấy địa điểm nào', 'No places found', '未找到地点')}
+                        moTa={t('Thử bỏ bớt bộ lọc hoặc tìm bằng từ khoá khác.',
+                            'Try removing some filters or searching differently.', '试试减少筛选条件或换个关键词。')} />
+                ) : cheDo === 'ban-do' ? (
+                    <div className='grid lg:grid-cols-5 gap-5 items-start'>
+                        <div className='lg:col-span-3 rounded-2xl overflow-hidden ring-1 ring-slate-200 shadow-sm'>
+                            <BanDo ds={ketQua.map(x => x.d)} chon={chon} onChon={setChon}
+                                viTriToi={viTriToi} cao='h-[60vh] min-h-[420px]' />
+                        </div>
+                        <div className='lg:col-span-2 flex flex-col gap-2.5 lg:max-h-[60vh] lg:overflow-y-auto lg:pr-1'>
+                            {ketQua.map(({ d, km }) => (
+                                <div key={d.id} onMouseEnter={() => setChon(d.id)}>
+                                    <TheDiaDiem d={d} kieu='ngang' khoangCach={km} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <div className='luoi-dd grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
+                        {ketQua.map(({ d, km }) => <TheDiaDiem key={d.id} d={d} khoangCach={km} />)}
+                    </div>
+                )}
             </div>
         </div>
+    )
+}
+
+// useSearchParams cần bọc Suspense để trang vẫn dựng sẵn được (Next 15)
+export default function TrangKhamPha() {
+    return (
+        <Suspense fallback={<Loading />}>
+            <NoiDungKhamPha />
+        </Suspense>
     )
 }

@@ -48,7 +48,7 @@ function FormDangNhap() {
                     </h1>
                     <p className='text-sm text-slate-500 mt-2'>
                         {cheDo === 'dang-nhap'
-                            ? t('Chào mừng trở lại Chợ Số Hồng Gai', 'Welcome back to Cho So Hong Gai', '欢迎回到鸿基数字市场')
+                            ? t('Chào mừng trở lại Khám Phá Hồng Gai', 'Welcome back to Kham Pha Hong Gai', '欢迎回到探索鸿基')
                             : t('Đăng ký làm khách mua hàng — muốn mở gian hàng, bạn có thể đăng ký sau', 'Sign up as a customer — you can register a store later', '注册为顾客 —— 如需开店可稍后注册')}
                     </p>
                 </div>

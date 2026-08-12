@@ -1,75 +1,100 @@
 import { NextResponse } from 'next/server'
 import { yeuCauAdmin } from '@/lib/server/quyen'
 import {
-    layTatCaGianTheoDiaDiem, ganGianChoDiaDiem,
-    layTatCaQuanTheoDiaDiem, ganQuanChoDiaDiem,
+    danhSachDiaDiem, timDiaDiemTheoId,
+    taoDiaDiem, capNhatDiaDiem, xoaDiaDiem,
 } from '@/lib/server/diaDiemDb'
-import { danhSachGian } from '@/lib/server/storeDb'
-import { danhSachQuanAn } from '@/lib/server/quanAnDb'
-import { DIA_DIEM } from '@/lib/diaDiem'
+import { LOAI_DIA_DIEM, MUC_GIA, TRANG_THAI } from '@/lib/diaDiemLoai'
 
-// GET /api/admin/dia-diem
-// Chỉ admin — trả mapping địa điểm -> gian & quán đã gắn, kèm danh sách gian/quán đã duyệt để chọn.
-// Phần quán bọc try/catch để nếu chưa chạy `npm run tao-bang` (chưa có bảng quán) vẫn dùng được phần gian.
+// CRUD ĐỊA ĐIỂM cho biên tập viên / quản trị.
+// Đây là thứ gỡ nút thắt lớn nhất của bản cũ: trước đây muốn thêm địa điểm phải
+// sửa tay lib/diaDiem.js rồi deploy lại; nay thêm/sửa ngay trên web.
+
+const KHONG_CO_QUYEN = () =>
+    NextResponse.json({ error: 'Chỉ quản trị viên mới được truy cập' }, { status: 403 })
+
+const CHUA_TAO_BANG = () =>
+    NextResponse.json(
+        { error: 'Chưa có bảng dia_diem. Chạy: npm run tao-bang-du-lich', chuaTaoBang: true },
+        { status: 503 },
+    )
+
+// Neon báo bảng chưa tồn tại bằng mã 42P01 — phân biệt với lỗi thật để báo đúng việc cần làm.
+const laLoiThieuBang = (e) =>
+    e?.code === '42P01' || /relation .*dia_diem.* does not exist/i.test(e?.message || '')
+
+// GET /api/admin/dia-diem — toàn bộ địa điểm, MỌI trạng thái (khác API công khai chỉ trả da_duyet)
 export async function GET() {
-    if (!await yeuCauAdmin()) {
-        return NextResponse.json({ error: 'Chỉ quản trị viên mới được truy cập' }, { status: 403 })
-    }
-
-    const gianTheoDiaDiem = await layTatCaGianTheoDiaDiem()
-    const gians = await danhSachGian({ status: 'da_duyet' })
-
-    let quanTheoDiaDiem = {}
-    let quanAns = []
+    if (!await yeuCauAdmin()) return KHONG_CO_QUYEN()
     try {
-        quanTheoDiaDiem = await layTatCaQuanTheoDiaDiem()
-        quanAns = (await danhSachQuanAn({ status: 'da_duyet' })).map(q => ({
-            id: q.id, ten: q.ten, tenChu: q.tenChu, logo: q.logo,
-        }))
-    } catch { quanTheoDiaDiem = {}; quanAns = [] }
-
-    return NextResponse.json({
-        gianTheoDiaDiem,
-        stores: gians.map(g => ({
-            id: g.id, tenGian: g.tenGian, tenChu: g.tenChu, loaiGian: g.loaiGian, logo: g.logo,
-        })),
-        quanTheoDiaDiem,
-        quanAns,
-    })
+        return NextResponse.json({ diaDiems: await danhSachDiaDiem() })
+    } catch (e) {
+        if (laLoiThieuBang(e)) return CHUA_TAO_BANG()
+        return NextResponse.json({ error: 'Không tải được danh sách địa điểm' }, { status: 500 })
+    }
 }
 
-// POST /api/admin/dia-diem  body: { diaDiemId, storeIds?, quanIds? }
-// Chỉ admin — ghi đè danh sách gian và/hoặc quán ăn gần đó của 1 địa điểm.
+// Kiểm tra dữ liệu gửi lên. Trả chuỗi lỗi, hoặc null nếu hợp lệ.
+function kiemTra(d) {
+    const tenVi = Array.isArray(d.ten) ? String(d.ten[0] || '').trim() : String(d.ten || '').trim()
+    if (!tenVi) return 'Chưa nhập tên địa điểm (bản tiếng Việt)'
+    if (!LOAI_DIA_DIEM.some(l => l.id === d.loai)) return 'Loại hình không hợp lệ'
+    if (d.mucGia && !MUC_GIA.some(m => m.id === d.mucGia)) return 'Mức giá không hợp lệ'
+    if (d.status && !TRANG_THAI.some(s => s.id === d.status)) return 'Trạng thái không hợp lệ'
+    if (d.viTri != null && d.viTri !== '' && !Array.isArray(d.viTri)) return 'Toạ độ không hợp lệ'
+    return null
+}
+
+// POST /api/admin/dia-diem — thêm địa điểm mới
 export async function POST(request) {
-    if (!await yeuCauAdmin()) {
-        return NextResponse.json({ error: 'Chỉ quản trị viên mới được truy cập' }, { status: 403 })
-    }
-
+    if (!await yeuCauAdmin()) return KHONG_CO_QUYEN()
     try {
-        const { diaDiemId, storeIds, quanIds } = await request.json()
+        const body = await request.json()
+        const loi = kiemTra(body)
+        if (loi) return NextResponse.json({ error: loi }, { status: 400 })
 
-        if (!DIA_DIEM.some(d => d.id === diaDiemId)) {
-            return NextResponse.json({ error: 'Địa điểm không hợp lệ' }, { status: 400 })
-        }
+        const diaDiem = await taoDiaDiem(body)
+        return NextResponse.json({ diaDiem })
+    } catch (e) {
+        if (laLoiThieuBang(e)) return CHUA_TAO_BANG()
+        // taoDiaDiem ném lỗi có câu chữ rõ ràng khi trùng mã — trả thẳng cho người dùng
+        return NextResponse.json({ error: e?.message || 'Không thêm được địa điểm' }, { status: 400 })
+    }
+}
 
-        const kq = {}
+// PUT /api/admin/dia-diem — sửa địa điểm (body kèm id)
+export async function PUT(request) {
+    if (!await yeuCauAdmin()) return KHONG_CO_QUYEN()
+    try {
+        const body = await request.json()
+        if (!body?.id) return NextResponse.json({ error: 'Thiếu mã địa điểm' }, { status: 400 })
 
-        // Gắn gian (nếu gửi lên)
-        if (Array.isArray(storeIds)) {
-            const gianDaDuyet = new Set((await danhSachGian({ status: 'da_duyet' })).map(g => g.id))
-            const hopLe = [...new Set(storeIds)].filter(id => gianDaDuyet.has(id))
-            kq.storeIds = await ganGianChoDiaDiem(diaDiemId, hopLe)
-        }
+        const loi = kiemTra(body)
+        if (loi) return NextResponse.json({ error: loi }, { status: 400 })
 
-        // Gắn quán ăn (nếu gửi lên)
-        if (Array.isArray(quanIds)) {
-            const quanDaDuyet = new Set((await danhSachQuanAn({ status: 'da_duyet' })).map(q => q.id))
-            const hopLe = [...new Set(quanIds)].filter(id => quanDaDuyet.has(id))
-            kq.quanIds = await ganQuanChoDiaDiem(diaDiemId, hopLe)
-        }
+        const diaDiem = await capNhatDiaDiem(body.id, body)
+        if (!diaDiem) return NextResponse.json({ error: 'Không tìm thấy địa điểm' }, { status: 404 })
+        return NextResponse.json({ diaDiem })
+    } catch (e) {
+        if (laLoiThieuBang(e)) return CHUA_TAO_BANG()
+        return NextResponse.json({ error: 'Không lưu được địa điểm' }, { status: 500 })
+    }
+}
 
-        return NextResponse.json(kq)
-    } catch {
-        return NextResponse.json({ error: 'Có lỗi xảy ra, vui lòng thử lại' }, { status: 500 })
+// DELETE /api/admin/dia-diem?id=<slug>
+export async function DELETE(request) {
+    if (!await yeuCauAdmin()) return KHONG_CO_QUYEN()
+    try {
+        const id = request.nextUrl.searchParams.get('id')
+        if (!id) return NextResponse.json({ error: 'Thiếu mã địa điểm' }, { status: 400 })
+
+        const dd = await timDiaDiemTheoId(id)
+        if (!dd) return NextResponse.json({ error: 'Không tìm thấy địa điểm' }, { status: 404 })
+
+        await xoaDiaDiem(id)
+        return NextResponse.json({ ok: true })
+    } catch (e) {
+        if (laLoiThieuBang(e)) return CHUA_TAO_BANG()
+        return NextResponse.json({ error: 'Không xoá được địa điểm' }, { status: 500 })
     }
 }

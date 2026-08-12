@@ -17,21 +17,23 @@ const Footer = () => {
 
     const linkSections = [
         {
-            title: t("SẢN PHẨM", "PRODUCTS", "产品"),
+            title: t("KHÁM PHÁ", "EXPLORE", "探索"),
             links: [
-                { text: t("Hải Sản Tươi", "Fresh Seafood", "鲜活海鲜"), path: '/shop', icon: null },
-                { text: t("Hải Sản Khô", "Dried Seafood", "海鲜干货"), path: '/shop', icon: null },
-                { text: t("Đặc Sản Quảng Ninh", "Quang Ninh Specialties", "广宁特产"), path: '/shop', icon: null },
-                { text: t("Quà Lưu Niệm", "Souvenirs", "纪念品"), path: '/shop', icon: null },
+                { text: t("Ăn uống", "Food & drink", "美食"), path: '/kham-pha?loai=an_uong', icon: null },
+                { text: t("Tâm linh", "Temples", "灵修"), path: '/kham-pha?loai=tam_linh', icon: null },
+                { text: t("Ngắm cảnh", "Scenic spots", "观景"), path: '/kham-pha?loai=ngam_canh', icon: null },
+                { text: t("Vui chơi", "Entertainment", "娱乐"), path: '/kham-pha?loai=vui_choi', icon: null },
             ]
         },
         {
-            title: t("CHỢ SỐ", "MARKETPLACE", "数字市场"),
+            title: t("CẨM NANG", "GUIDE", "指南"),
             links: [
                 { text: t("Trang chủ", "Home", "首页"), path: '/', icon: null },
+                { text: t("Bản đồ Hồng Gai", "Hong Gai map", "鸿基地图"), path: '/ban-do', icon: null },
+                { text: t("Lộ trình gợi ý", "Itineraries", "推荐行程"), path: '/lo-trinh', icon: null },
+                { text: t("Sự kiện & lễ hội", "Events & festivals", "活动与庙会"), path: '/su-kien', icon: null },
+                { text: t("Hành trình của tôi", "My journey", "我的旅程"), path: '/hanh-trinh', icon: null },
                 { text: t("Chính sách bảo mật", "Privacy Policy", "隐私政策"), path: '/', icon: null },
-                { text: t("Đăng ký thành viên", "Sign Up", "注册会员"), path: '/login?dangky=1', icon: null },
-                { text: t("Mở gian hàng", "Open a Store", "开店"), path: '/create-store', icon: null },
             ]
         },
         {
@@ -56,10 +58,10 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row items-start justify-between gap-10 py-10 border-b border-slate-500/30 text-slate-500">
                     <div>
-                        <Link href="/" aria-label="Về trang chủ Chợ Số Hồng Gai" className="inline-block">
+                        <Link href="/" aria-label="Về trang chủ Khám Phá Hồng Gai" className="inline-block">
                             <LogoChoSo size={44} />
                         </Link>
-                        <p className="max-w-[410px] mt-6 text-sm">{t('Chào mừng đến với Chợ Số Hồng Gai — chợ trực tuyến của phường Hồng Gai, tỉnh Quảng Ninh. Kết nối người mua và người bán với hải sản tươi, đặc sản biển và quà lưu niệm Quảng Ninh chính gốc.', 'Welcome to Cho So Hong Gai — the online marketplace of Hong Gai Ward, Quang Ninh Province. Connecting buyers and sellers with fresh seafood, sea specialties and authentic Quang Ninh souvenirs.', '欢迎来到鸿基数字市场 —— 广宁省鸿基坊的线上市场。连接买家与卖家，提供鲜活海鲜、海产特产和正宗广宁纪念品。')}</p>
+                        <p className="max-w-[410px] mt-6 text-sm">{t('Cẩm nang du lịch phường Hồng Gai, tỉnh Quảng Ninh — địa điểm ăn uống, vui chơi, tâm linh, di tích và ngắm cảnh quanh vịnh Hạ Long, giới thiệu bằng ba thứ tiếng.', 'A travel guide to Hong Gai Ward, Quang Ninh — food, fun, temples, heritage and scenic spots around Ha Long Bay, in three languages.', '广宁省鸿基坊旅游指南 —— 下龙湾畔的美食、娱乐、寺庙、古迹与观景地，三种语言介绍。')}</p>
                         <div className="flex items-center gap-3 mt-5">
                             {socialIcons.map((item, i) => (
                                 <Link href={item.link} key={i} className="flex items-center justify-center w-10 h-10 bg-slate-100 hover:scale-105 hover:border border-slate-300 transition rounded-full">
@@ -85,7 +87,7 @@ const Footer = () => {
                     </div>
                 </div>
                 <p className="py-4 text-sm text-slate-500">
-                    {t('Bản quyền 2026 © Chợ Số Hồng Gai — Đỗ Duy Phong · Đoàn Thanh Niên Phường Hồng Gai, Quảng Ninh.', 'Copyright 2026 © Cho So Hong Gai — Do Duy Phong · Hong Gai Ward Youth Union, Quang Ninh.', '版权所有 2026 © 鸿基数字市场 —— 杜维峰 · 广宁省鸿基坊青年团。')}
+                    {t('Bản quyền 2026 © Khám Phá Hồng Gai — Đỗ Duy Phong · Đoàn Thanh Niên Phường Hồng Gai, Quảng Ninh.', 'Copyright 2026 © Kham Pha Hong Gai — Do Duy Phong · Hong Gai Ward Youth Union, Quang Ninh.', '版权所有 2026 © 探索鸿基 —— 杜维峰 · 广宁省鸿基坊青年团。')}
                 </p>
             </div>
         </footer>

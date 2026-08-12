@@ -7,7 +7,7 @@ const AdminNavbar = () => {
     return (
         <div className="flex items-center justify-between px-12 py-3 border-b border-slate-200 transition-all">
             <Link href="/" className="flex flex-col leading-tight">
-                <span className="text-2xl font-bold text-green-600">Chợ Số</span>
+                <span className="text-2xl font-bold text-green-600">Khám Phá</span>
                 <span className="text-lg font-semibold text-slate-700 -mt-1">Hồng Gai</span>
             </Link>
             <div className="flex items-center gap-3">

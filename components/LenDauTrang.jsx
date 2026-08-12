@@ -10,7 +10,6 @@ import { ArrowUp } from 'lucide-react'
 export default function LenDauTrang() {
     const [phanTram, setPhanTram] = useState(0)
     const [hien, setHien] = useState(false)
-    const [chatMo, setChatMo] = useState(false)
 
     useEffect(() => {
         let cuonTruoc = window.scrollY
@@ -38,25 +37,7 @@ export default function LenDauTrang() {
         }
     }, [])
 
-    // Nghe trạng thái mở/đóng của bong bóng chat (BongBongChat phát sự kiện 'chat:mo')
-    // để ẩn nút khi panel đang mở (tránh đè lên panel ở góc phải-dưới trên điện thoại).
-    useEffect(() => {
-        const nghe = (e) => setChatMo(!!e.detail?.mo)
-        window.addEventListener('chat:mo', nghe)
-        return () => window.removeEventListener('chat:mo', nghe)
-    }, [])
-
-    // Trang sản phẩm bật thanh mua dính đáy thì bong bóng chat tự nhấc lên 152px (9.5rem);
-    // nút này đứng yên ở 160px nên lọt HẲN vào giữa bong bóng chat — hai nút chồng nhau.
-    // Nghe cùng sự kiện 'thanh-mua:hien' mà chat đang nghe để nhấc lên theo.
-    const [coThanhMua, setCoThanhMua] = useState(false)
-    useEffect(() => {
-        const nghe = (e) => setCoThanhMua(!!e.detail?.hien)
-        window.addEventListener('thanh-mua:hien', nghe)
-        return () => window.removeEventListener('thanh-mua:hien', nghe)
-    }, [])
-
-    const an = !hien || chatMo
+    const an = !hien
 
     return (
         <>
@@ -68,14 +49,13 @@ export default function LenDauTrang() {
                 />
             </div>
 
-            {/* Nút lên đầu trang — điện thoại & máy tính bảng: canh giữa NGAY TRÊN bong bóng chat
-                (phải, nằm trên BottomNav); máy tính (lg): góc trái. right-[22px] để tâm nút thẳng
-                tâm bong bóng chat (right-4, size-14). */}
+            {/* Nút lên đầu trang — điện thoại & máy tính bảng: góc phải, ngay TRÊN thanh dưới
+                (thanh cao ~68px, chừa thêm khoảng thở); máy tính (lg): góc trái. */}
             <button
                 type='button'
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 aria-label='Lên đầu trang'
-                className={`fixed z-40 right-[22px] ${coThanhMua ? 'bottom-[calc(14rem+env(safe-area-inset-bottom))]' : 'bottom-[calc(10rem+env(safe-area-inset-bottom))]'} lg:right-auto lg:left-5 lg:bottom-6 flex items-center justify-center size-11 rounded-full bg-white text-slate-600 shadow-lg ring-1 ring-slate-200 hover:text-green-600 hover:ring-green-200 active:scale-90 transition-all duration-300 ${an ? 'opacity-0 translate-y-3 pointer-events-none' : 'opacity-100 translate-y-0'}`}
+                className={`fixed z-40 right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] lg:right-auto lg:left-5 lg:bottom-6 flex items-center justify-center size-11 rounded-full bg-white text-slate-600 shadow-lg ring-1 ring-slate-200 hover:text-sky-600 hover:ring-sky-200 active:scale-90 transition-all duration-300 ${an ? 'opacity-0 translate-y-3 pointer-events-none' : 'opacity-100 translate-y-0'}`}
             >
                 <ArrowUp size={20} />
             </button>

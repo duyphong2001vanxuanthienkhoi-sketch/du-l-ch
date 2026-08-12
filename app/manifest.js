@@ -3,8 +3,8 @@
 // iOS dùng thêm app/apple-icon.png + thẻ appleWebApp trong layout.
 export default function manifest() {
     return {
-        name: 'Chợ Số Hồng Gai',
-        short_name: 'Chợ Số Hồng Gai',
+        name: 'Khám Phá Hồng Gai',
+        short_name: 'Khám Phá Hồng Gai',
         description: 'Chợ trực tuyến phường Hồng Gai, Quảng Ninh — hải sản tươi, đặc sản biển và quà lưu niệm.',
         start_url: '/',
         display: 'standalone',
