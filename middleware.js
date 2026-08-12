@@ -9,11 +9,25 @@
 import { NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 
-const BI_MAT = new TextEncoder().encode(
-    process.env.AUTH_SECRET || 'chosohonggai-demo-secret-hay-doi-khi-len-that'
-)
+// AUTH_SECRET — khóa ký phiên đăng nhập.
+//
+// KHÔNG được có chuỗi mặc định ghi cứng ở đây. Mã nguồn dự án này là công khai
+// (github.com/duyphong2001vanxuanthienkhoi-sketch/du-l-ch), nên chuỗi mặc định nào
+// nằm trong file cũng coi như ai cũng biết — quên khai biến là bất kỳ ai đọc repo
+// cũng tự ký được một phiên admin hợp lệ và vào thẳng khu quản trị.
+//
+// Thiếu biến thì FAIL CLOSED: chặn hẳn khu /admin thay vì cho vào bằng khóa ai cũng đoán được.
+// (middleware chỉ khớp /admin nên trang công khai vẫn chạy bình thường.)
+const BI_MAT = process.env.AUTH_SECRET
+    ? new TextEncoder().encode(process.env.AUTH_SECRET)
+    : null
 
 async function docPhien(req) {
+    // Thiếu AUTH_SECRET -> coi như KHÔNG có phiên nào hợp lệ, đẩy hết về trang đăng nhập
+    if (!BI_MAT) {
+        console.error('[middleware] Thiếu AUTH_SECRET — khóa toàn bộ khu /admin. Khai biến này trên Vercel rồi deploy lại.')
+        return null
+    }
     const token = req.cookies.get('phien')?.value
     if (!token) return null
     try {
