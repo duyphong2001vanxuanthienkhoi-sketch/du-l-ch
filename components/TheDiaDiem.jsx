@@ -105,7 +105,9 @@ export default function TheDiaDiem({ d, kieu = 'luoi', khoangCach = null, onChon
     }
 
     // --- Kiểu LƯỚI (mặc định) và DẢI cuộn ngang ---
-    const rongDai = kieu === 'dai' ? 'w-64 shrink-0' : ''
+    // 'dai': rộng cố định để vuốt ngang trên điện thoại; lg:w-auto để khi khổ máy tính
+    // đổi bố cục sang lưới thì thẻ giãn vừa ô thay vì bị ghim cứng 256px.
+    const rongDai = kieu === 'dai' ? 'w-64 shrink-0 lg:w-auto' : ''
     return (
         <Link href={`/dia-diem/${d.id}`} onClick={onChon ? (e) => onChon(e, d) : undefined}
             className={`the-dd group flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${rongDai}`}

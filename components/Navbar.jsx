@@ -1,7 +1,7 @@
 'use client'
 import { ChevronDown, LayoutDashboard, LogOut, MapPin, Search, UserRound } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@/components/AuthProvider"
 import { useNgonNgu } from "@/lib/i18n"
@@ -83,6 +83,11 @@ const OTimDiaDiem = ({ lopNgoai = '', lopO = 'px-4 py-2.5' }) => {
 const Navbar = () => {
     const { user: nguoiDung } = useAuth()
     const { t } = useNgonNgu()
+    // Trang chủ (ô tìm to trong hero) và Khám phá (ô tìm + bộ lọc riêng) đã có ô tìm
+    // nổi bật của chính nó. Hiện thêm ô của Navbar nữa là hai thanh tìm kiếm nằm cách
+    // nhau vài chục pixel — thừa và luộm thuộm.
+    const duong = usePathname()
+    const coOTimRieng = duong === '/' || duong.startsWith('/kham-pha')
 
     const dangXuat = async () => {
         await fetch('/api/auth/logout', { method: 'POST' })
@@ -139,10 +144,13 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Ô tìm cho điện thoại + máy tính bảng (màn ≥1280px dùng ô tìm trên thanh menu) */}
-                <div className="xl:hidden max-w-7xl mx-auto pb-3">
-                    <OTimDiaDiem />
-                </div>
+                {/* Ô tìm cho điện thoại + máy tính bảng (màn ≥1280px dùng ô tìm trên thanh menu).
+                    Ẩn ở những trang đã có ô tìm riêng — xem `coOTimRieng` bên trên. */}
+                {!coOTimRieng && (
+                    <div className="xl:hidden max-w-7xl mx-auto pb-3">
+                        <OTimDiaDiem />
+                    </div>
+                )}
             </div>
             <hr className="border-slate-200" />
         </nav>

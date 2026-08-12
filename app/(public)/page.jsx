@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Compass, Map as MapIcon, MapPin, Search } from 'lucide-react'
 import TheDiaDiem from '@/components/TheDiaDiem'
+import TheLoTrinh from '@/components/TheLoTrinh'
 import ChipLoaiHinh from '@/components/ChipLoaiHinh'
 import AnhDiaDiem from '@/components/AnhDiaDiem'
 import Anh from '@/components/Anh'
@@ -85,7 +86,10 @@ export default function TrangChu() {
                 <div className='absolute inset-0' aria-hidden='true'
                     style={{ background: 'linear-gradient(180deg, rgba(8,37,64,.55) 0%, rgba(8,37,64,.60) 45%, rgba(8,37,64,.88) 100%)' }} />
 
-                <div className='relative max-w-6xl mx-auto px-5 pt-14 pb-10 sm:pt-20 sm:pb-14'>
+                {/* Trên máy tính hero phải CAO hẳn: ở khổ rộng, hero thấp làm ảnh nền bị
+                    cắt thành một dải hẹp, mất hết cảnh — với app du lịch thì đó là hỏng
+                    đúng thứ quan trọng nhất. min-h theo dvh để không phụ thuộc chiều ảnh. */}
+                <div className='relative max-w-6xl mx-auto px-5 pt-14 pb-10 sm:pt-20 sm:pb-14 lg:pt-28 lg:pb-20 lg:min-h-[62vh] flex flex-col justify-center'>
                     <span className='inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3.5 py-1.5 rounded-full backdrop-blur-sm'
                         style={{ background: 'rgba(255,255,255,.18)' }}>
                         <MapPin size={13} /> {t('Phường Hồng Gai · Quảng Ninh', 'Hong Gai Ward · Quang Ninh', '鸿基坊 · 广宁')}
@@ -166,26 +170,16 @@ export default function TrangChu() {
                         'Hour-by-hour itineraries — no planning needed',
                         '按时段编排好的行程 —— 无需自己安排')}
                     mau='#7c3aed' href='/lo-trinh' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
-                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
-                        {lts.slice(0, 6).map(lt => {
-                            const mau = lt.mau || '#7c3aed'
-                            return (
-                                <Link key={lt.id} href={`/lo-trinh/${lt.id}`}
-                                    className='the-dd group w-64 shrink-0 rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all'
-                                    style={{ background: `linear-gradient(135deg, ${mau}12, ${mau}28)` }}>
-                                    <span className='text-3xl'>{lt.icon || '🗺️'}</span>
-                                    <h3 className='font-bold text-slate-800 mt-2 can-dong'>{t(...lt.ten)}</h3>
-                                    <p className='text-xs text-slate-500 mt-1'>
-                                        {t(`${lt.diem?.length || 0} điểm`, `${lt.diem?.length || 0} stops`, `${lt.diem?.length || 0} 站`)}
-                                        {t(...(lt.thoiLuong || [])) && ` · ${t(...lt.thoiLuong)}`}
-                                    </p>
-                                    <p className='text-sm text-slate-600 mt-2 line-clamp-3 leading-relaxed'>{t(...lt.mota)}</p>
-                                    <span className='inline-flex items-center gap-1.5 text-sm font-semibold mt-3 group-hover:gap-2.5 transition-all' style={{ color: mau }}>
-                                        {t('Xem lộ trình', 'View route', '查看行程')} <ArrowRight size={14} />
-                                    </span>
-                                </Link>
-                            )
-                        })}
+                    {/* Máy tính: lưới 3 cột cho gọn gàng. Điện thoại: cuộn ngang.
+                        Trước đây desktop cũng cuộn ngang nên thẻ thứ 4 bị cắt cụt ở mép phải —
+                        trên điện thoại thẻ ló ra là tín hiệu "vuốt đi", còn trên máy tính
+                        nó chỉ trông như bố cục hỏng. */}
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2 lg:grid lg:grid-cols-3 lg:overflow-visible'>
+                        {lts.slice(0, 6).map((lt, i) => (
+                            <div key={lt.id} className={i >= 3 ? 'lg:hidden' : ''}>
+                                <TheLoTrinh lt={lt} ds={ds} kieu='dai' />
+                            </div>
+                        ))}
                     </div>
                 </Khu>
             )}
@@ -219,7 +213,7 @@ export default function TrangChu() {
                 <Khu tieuDe={t('Đang mở cửa lúc này', 'Open right now', '现在营业中')}
                     moTa={t('Ghé được ngay bây giờ', 'You can go right now', '现在就能去')}
                     mau='#059669' href='/kham-pha' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
-                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2 lg:grid lg:grid-cols-4 lg:overflow-visible'>
                         {dangMoGio.map(d => <TheDiaDiem key={d.id} d={d} kieu='dai' />)}
                     </div>
                 </Khu>
@@ -232,7 +226,7 @@ export default function TrangChu() {
                         'Hon Gai seafood, mantis shrimp noodles, squid cake and bay-view cafés',
                         '鸿街海鲜、虾蛄米粉、墨鱼饼与海景咖啡')}
                     mau='#ea580c' href='/kham-pha?loai=an_uong' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
-                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2 lg:grid lg:grid-cols-4 lg:overflow-visible'>
                         {anUong.map(d => <TheDiaDiem key={d.id} d={d} kieu='dai' />)}
                     </div>
                 </Khu>
@@ -262,7 +256,7 @@ export default function TrangChu() {
                         'Long Tien Pagoda, Duc Ong Temple, ancient poems carved on Bai Tho Mountain',
                         '龙仙寺、德翁庙、诗山崖壁上的古诗题刻')}
                     mau='#d97706' href='/kham-pha?loai=tam_linh' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
-                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2'>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar cuon-chip pb-2 lg:grid lg:grid-cols-4 lg:overflow-visible'>
                         {tamLinh.map(d => <TheDiaDiem key={d.id} d={d} kieu='dai' />)}
                     </div>
                 </Khu>
