@@ -16,25 +16,20 @@
     "nap-du-lieu": "node --env-file=.env scripts/nap-du-lieu.mjs",
     "seed-do-an": "node --env-file=.env scripts/seed-do-an.mjs",
     "xuat-sao-luu": "node --env-file=.env scripts/xuat-sao-luu.mjs",
-    "nap-lai-sao-luu": "node --env-file=.env scripts/nap-lai-sao-luu.mjs"
+    "nap-lai-sao-luu": "node --env-file=.env scripts/nap-lai-sao-luu.mjs",
+    "kiem-csdl": "node --env-file=.env --env-file-if-exists=.env.local scripts/kiem-csdl.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "@reduxjs/toolkit": "^2.8.2",
     "@vercel/blob": "^2.5.0",
     "bcryptjs": "^3.0.3",
-    "date-fns": "^4.1.0",
     "jose": "^6.2.3",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.525.0",
     "next": "^15.5.20",
-    "pusher": "^5.3.4",
-    "pusher-js": "^8.5.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hot-toast": "^2.5.2",
-    "react-redux": "^9.2.0",
-    "recharts": "^3.1.2",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
