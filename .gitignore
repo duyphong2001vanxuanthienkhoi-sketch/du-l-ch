@@ -55,3 +55,4 @@ next-env.d.ts
 
 # Sao lưu bảng cũ trước khi xoá (scripts/xoa-bang-cu.mjs)
 sao-luu/
+sao-luu-du-lich/

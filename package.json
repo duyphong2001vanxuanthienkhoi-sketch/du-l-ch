@@ -14,7 +14,9 @@
     "nap-lo-trinh": "node --env-file=.env scripts/nap-lo-trinh.mjs",
     "xoa-bang-cu": "node --env-file=.env scripts/xoa-bang-cu.mjs",
     "nap-du-lieu": "node --env-file=.env scripts/nap-du-lieu.mjs",
-    "seed-do-an": "node --env-file=.env scripts/seed-do-an.mjs"
+    "seed-do-an": "node --env-file=.env scripts/seed-do-an.mjs",
+    "xuat-sao-luu": "node --env-file=.env scripts/xuat-sao-luu.mjs",
+    "nap-lai-sao-luu": "node --env-file=.env scripts/nap-lai-sao-luu.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
