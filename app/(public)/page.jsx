@@ -62,11 +62,20 @@ export default function TrangChu() {
         return kq
     }, [ds])
 
-    // Ảnh nền đầu trang: lấy địa điểm nổi bật nhất có ảnh
-    const anhNen = ds.find(d => d.anhBia) || ds[0] || null
+    // Xếp theo ĐỘ NỔI BẬT — dùng cho cả ảnh nền đầu trang lẫn thẻ lớn của khối bento.
+    const theoNoiBat = useMemo(
+        () => [...ds].sort((a, b) => (b.noiBat || 0) - (a.noiBat || 0)),
+        [ds],
+    )
+
+    // Ảnh nền đầu trang = địa điểm NỔI BẬT NHẤT (núi Bài Thơ — biểu tượng của phường).
+    // Bản trước lấy `ds.find(có anhBia) || ds[0]`: chưa địa điểm nào có anhBia nên luôn
+    // rơi vào ds[0], mà mọi noiBat đều bằng 0 nên thứ tự lại là bảng chữ cái — hoá ra
+    // ảnh đại diện cho cả app do chữ B của "Bảo tàng" quyết định, chứ không do ai chọn.
+    const anhNen = theoNoiBat[0] || null
 
     const anUong = ds.filter(d => d.loai === 'an_uong' || d.loai === 'ca_phe')
-    const noiBat = [...ds].sort((a, b) => (b.noiBat || 0) - (a.noiBat || 0)).slice(0, 6)
+    const noiBat = theoNoiBat.slice(0, 6)
     const tamLinh = ds.filter(d => d.loai === 'tam_linh' || d.loai === 'di_tich')
     const dangMoGio = ds.filter(d => dangMoCua(d) === true).slice(0, 8)
 
@@ -89,6 +98,12 @@ export default function TrangChu() {
                     đều đều, mất hết cảnh; mà cảnh chính là thứ bán được chuyến đi. */}
                 <div className='absolute inset-0' aria-hidden='true'
                     style={{ background: 'linear-gradient(180deg, rgba(8,36,60,.22) 0%, rgba(8,36,60,.48) 45%, rgba(8,36,60,.90) 100%)' }} />
+                {/* Lớp che PHÍA CHỮ (bên trái) thay vì tối cả ảnh.
+                    Ảnh núi Bài Thơ có vùng nước rất sáng, chữ trắng đè lên bị chìm. Nhưng
+                    phủ đậm toàn khung thì mất luôn cảnh — thứ đáng giá nhất của đầu trang.
+                    Chỉ tối bên trái nơi đặt chữ, nửa phải giữ nguyên cảnh vịnh. */}
+                <div className='absolute inset-0 hidden lg:block' aria-hidden='true'
+                    style={{ background: 'linear-gradient(90deg, rgba(8,36,60,.62) 0%, rgba(8,36,60,.34) 38%, transparent 68%)' }} />
 
                 {/* Trên máy tính hero phải CAO hẳn: ở khổ rộng, hero thấp làm ảnh nền bị
                     cắt thành một dải hẹp, mất hết cảnh — với app du lịch thì đó là hỏng

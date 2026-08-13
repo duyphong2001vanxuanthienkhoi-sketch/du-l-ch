@@ -29,6 +29,28 @@ const suyMucGia = (giaVeVi = '') => (/miễn phí|tự do/i.test(giaVeVi) ? 'mie
 
 const ba = (v) => (Array.isArray(v) ? [0, 1, 2].map(i => String(v[i] ?? '')) : ['', '', ''])
 
+// ĐỘ NỔI BẬT — quyết định thứ tự hiển thị ở mọi nơi: ảnh nền đầu trang, thẻ LỚN của
+// khối bento, thứ tự trong danh sách. Trước đây tất cả đều là 0 nên thứ tự rơi về
+// xếp theo bảng chữ cái, và "Bảo tàng Quảng Ninh" tình cờ đứng đầu — không sai, nhưng
+// biểu tượng của phường Hồng Gai phải là NÚI BÀI THƠ (chính phần giới thiệu trong
+// lib/diaDiem.mjs cũng mở đầu bằng "Biểu tượng của Hồng Gai").
+//
+// Đặt bằng DỮ LIỆU chứ không gắn cứng id vào giao diện: sau này biên tập viên đổi
+// thứ hạng ngay trong /admin/dia-diem là xong, không phải sửa code.
+const NOI_BAT = {
+    'nui-bai-tho': 100,                  // biểu tượng của phường
+    'vinh-ha-long': 90,                  // kỳ quan thế giới
+    'chua-long-tien': 80,
+    'den-duc-ong': 70,
+    'bao-tang-qn': 60,
+    'cau-bai-chay': 50,
+    'cho-ha-long-1': 40,
+    'chua-bao-hai-linh-thong-tu': 35,
+    'nha-bia-tho-co': 25,
+    'den-ba-chua': 20,
+    'vincom-hong-gai': 10,
+}
+
 function chuyenDoi(d) {
     const loaiVi = Array.isArray(d.loai) ? d.loai[0] : d.loai
     const luc = new Date().toISOString()
@@ -64,7 +86,7 @@ function chuyenDoi(d) {
         nguon: 'bien_tap',
         userId: null,
         status: 'da_duyet',
-        noiBat: 0,
+        noiBat: NOI_BAT[d.id] ?? 0,
 
         // Toạ độ trên bản đồ vẽ tay (khác viTri của bản đồ thật)
         x: d.x ?? null, y: d.y ?? null, nhanPhai: d.nhanPhai ?? false,
@@ -89,6 +111,28 @@ for (const d of DIA_DIEM) {
     else boQua.push(dd.id)
 }
 
+// Cập nhật ĐỘ NỔI BẬT cho những dòng ĐÃ CÓ.
+// Phần trên cố tình không đè lên bản đã có (giữ nội dung biên tập viên đã sửa), nhưng
+// riêng `noiBat` thì phải cập nhật được — nếu không, các bản nạp trước vẫn nằm nguyên
+// ở 0 và thứ tự hiển thị lại rơi về xếp theo bảng chữ cái.
+// jsonb_set chỉ chạm ĐÚNG một khoá, mọi trường khác giữ nguyên.
+let daXepHang = 0
+for (const [id, diem] of Object.entries(NOI_BAT)) {
+    const rows = await sql`
+        UPDATE dia_diem
+        SET data = jsonb_set(data, '{noiBat}', ${String(diem)}::jsonb)
+        WHERE id = ${id} AND COALESCE((data->>'noiBat')::int, 0) <> ${diem}
+        RETURNING id`
+    if (rows.length) daXepHang++
+}
+
 const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM dia_diem`
 console.log(`\nĐã thêm ${daThem} địa điểm.` + (boQua.length ? ` Bỏ qua ${boQua.length} đã có: ${boQua.join(', ')}` : ''))
+if (daXepHang) console.log(`Đã cập nhật độ nổi bật cho ${daXepHang} địa điểm.`)
 console.log(`Bảng dia_diem hiện có ${count} địa điểm.`)
+
+const [{ dau }] = await sql`
+    SELECT data->>'ten' AS dau FROM dia_diem
+    WHERE data->>'status' = 'da_duyet'
+    ORDER BY COALESCE((data->>'noiBat')::int, 0) DESC LIMIT 1`
+console.log(`Nổi bật nhất (ảnh nền trang chủ): ${JSON.parse(dau)[0]}`)
