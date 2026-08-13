@@ -84,8 +84,11 @@ export default function TrangChu() {
                         <span className='block w-full h-full' style={{ background: 'linear-gradient(135deg,#14486E,#08243C)' }} />
                     )}
                 </div>
+                {/* Lớp phủ NHẸ ở trên, đậm dần xuống đáy nơi đặt chữ — để ảnh còn "thở".
+                    Bản trước phủ .55 ngay từ đỉnh nên ảnh nào cũng thành một mảng tối
+                    đều đều, mất hết cảnh; mà cảnh chính là thứ bán được chuyến đi. */}
                 <div className='absolute inset-0' aria-hidden='true'
-                    style={{ background: 'linear-gradient(180deg, rgba(8,37,64,.55) 0%, rgba(8,37,64,.60) 45%, rgba(8,37,64,.88) 100%)' }} />
+                    style={{ background: 'linear-gradient(180deg, rgba(8,36,60,.22) 0%, rgba(8,36,60,.48) 45%, rgba(8,36,60,.90) 100%)' }} />
 
                 {/* Trên máy tính hero phải CAO hẳn: ở khổ rộng, hero thấp làm ảnh nền bị
                     cắt thành một dải hẹp, mất hết cảnh — với app du lịch thì đó là hỏng
@@ -116,6 +119,23 @@ export default function TrangChu() {
                             {t('Tìm', 'Search', '搜索')}
                         </button>
                     </form>
+
+                    {/* Dòng trạng thái SỐNG — cho thấy app biết chuyện gì đang diễn ra
+                        ngay lúc này, thay vì chỉ là một trang giới thiệu tĩnh. */}
+                    {ds.length > 0 && (
+                        <p className='flex items-center gap-x-4 gap-y-1 flex-wrap text-xs text-white/70 mt-4'>
+                            <span>{t(`${ds.length} địa điểm`, `${ds.length} places`, `${ds.length} 个地点`)}</span>
+                            {dangMoGio.length > 0 && (
+                                <span className='flex items-center gap-1.5'>
+                                    <span className='size-1.5 rounded-full bg-emerald-400' aria-hidden='true' />
+                                    {t(`${dangMoGio.length} nơi đang mở cửa`, `${dangMoGio.length} open now`, `${dangMoGio.length} 处正在营业`)}
+                                </span>
+                            )}
+                            {lts.length > 0 && (
+                                <span>{t(`${lts.length} lộ trình gợi ý`, `${lts.length} itineraries`, `${lts.length} 条推荐行程`)}</span>
+                            )}
+                        </p>
+                    )}
 
                     <div className='flex flex-wrap gap-2 mt-4'>
                         {LOAI_DIA_DIEM.slice(0, 6).map(l => (
@@ -245,8 +265,17 @@ export default function TrangChu() {
                         <Khu tieuDe={t('Điểm đến nổi bật', 'Featured destinations', '热门景点')}
                             moTa={t('Những nơi không nên bỏ lỡ khi đến Hồng Gai', 'Not to be missed in Hong Gai', '来鸿基不容错过')}
                             mau='#00A8A8' href='/kham-pha' nhanHet={t('Xem tất cả', 'See all', '查看全部')}>
-                            <div className='luoi-dd grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
-                                {noiBat.map(d => <TheDiaDiem key={d.id} d={d} />)}
+                            {/* BENTO: một thẻ LỚN neo mắt + bốn thẻ nhỏ quanh nó.
+                                Trước đây cả trang chỉ toàn thẻ cùng cỡ nên nhịp phẳng lì,
+                                mắt lướt qua mà không dừng ở đâu. Điện thoại vẫn xếp thường
+                                — màn hẹp thì thẻ lớn chiếm hết chỗ, phản tác dụng. */}
+                            <div className='luoi-dd grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4 lg:grid-rows-2 lg:auto-rows-fr'>
+                                {noiBat.slice(0, 5).map((d, i) => (
+                                    <div key={d.id}
+                                        className={`h-full ${i === 0 ? 'lg:col-span-2 lg:row-span-2 sm:col-span-2 lg:col-start-1' : ''}`}>
+                                        <TheDiaDiem d={d} kieu={i === 0 ? 'lon' : 'luoi'} />
+                                    </div>
+                                ))}
                             </div>
                         </Khu>
                     </div>

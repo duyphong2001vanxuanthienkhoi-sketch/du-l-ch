@@ -104,13 +104,54 @@ export default function TheDiaDiem({ d, kieu = 'luoi', khoangCach = null, onChon
         )
     }
 
+    // --- Kiểu LỚN: thẻ chủ đạo của khối bento, ảnh tràn cả thẻ, chữ đè lên ảnh ---
+    // Mọi thẻ cùng một cỡ thì trang phẳng lì, mắt không có chỗ dừng. Thẻ lớn tạo
+    // điểm neo thị giác cho cả khối.
+    if (kieu === 'lon') {
+        return (
+            <Link href={`/dia-diem/${d.id}`} onClick={onChon ? (e) => onChon(e, d) : undefined}
+                className='the-dd group relative flex flex-col justify-end min-h-[260px] lg:min-h-full rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300'
+                style={{ '--mau': mau }}>
+                <Bia d={d} className='absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700' />
+                {/* Lớp phủ chỉ đậm ở đáy — ảnh vẫn "thở" ở phần trên */}
+                <span aria-hidden='true' className='absolute inset-0'
+                    style={{ background: 'linear-gradient(180deg, rgba(8,36,60,0) 30%, rgba(8,36,60,.55) 62%, rgba(8,36,60,.92) 100%)' }} />
+
+                <span className='absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full text-white backdrop-blur-sm'
+                    style={{ backgroundColor: mau + 'e6' }}>
+                    {loai ? t(...loai.ten) : d.loai}
+                </span>
+                <NutLuu id={d.id} className='absolute top-2.5 right-2.5' />
+
+                <div className='relative p-5'>
+                    <h3 className='text-xl sm:text-2xl font-bold text-white can-dong'>{ten}</h3>
+                    <div className='flex items-center gap-x-3 gap-y-1 flex-wrap text-xs text-white/80 mt-2'>
+                        {d.diemTB > 0 && (
+                            <span className='flex items-center gap-1 font-semibold'>
+                                <Star size={12} className='fill-current' />{d.diemTB}
+                            </span>
+                        )}
+                        {mo !== null && (
+                            <span className='font-semibold'>{mo ? t('Đang mở', 'Open', '营业中') : t('Đã đóng', 'Closed', '已打烊')}</span>
+                        )}
+                        {gia && <span className='font-semibold'>{gia.kyHieu || t(...gia.ten)}</span>}
+                        {khoangCach != null && (
+                            <span>{khoangCach < 1 ? `${Math.round(khoangCach * 1000)} m` : `${khoangCach.toFixed(1)} km`}</span>
+                        )}
+                    </div>
+                    {mota && <p className='text-sm text-white/75 mt-2 line-clamp-2 leading-relaxed max-w-md'>{mota}</p>}
+                </div>
+            </Link>
+        )
+    }
+
     // --- Kiểu LƯỚI (mặc định) và DẢI cuộn ngang ---
     // 'dai': rộng cố định để vuốt ngang trên điện thoại; lg:w-auto để khi khổ máy tính
     // đổi bố cục sang lưới thì thẻ giãn vừa ô thay vì bị ghim cứng 256px.
     const rongDai = kieu === 'dai' ? 'w-64 shrink-0 lg:w-auto' : ''
     return (
         <Link href={`/dia-diem/${d.id}`} onClick={onChon ? (e) => onChon(e, d) : undefined}
-            className={`the-dd group flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${rongDai}`}
+            className={`the-dd group flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${rongDai}`}
             style={{ '--mau': mau }}>
             <div className='relative'>
                 <Bia d={d} className='w-full aspect-[16/10] object-cover group-hover:scale-[1.03] transition-transform duration-500' />
