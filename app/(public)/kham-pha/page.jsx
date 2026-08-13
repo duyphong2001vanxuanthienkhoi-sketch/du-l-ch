@@ -36,15 +36,34 @@ function NoiDungKhamPha() {
     const [chon, setChon] = useState(null)
     const [viTriToi, setViTriToi] = useState(null)
 
-    // Nhận ?loai= từ URL (tab Ăn uống ở thanh dưới, link từ trang chủ)
+    // Nhận ?loai= và ?q= từ URL.
+    // ?loai= : tab Ăn uống ở thanh dưới, chip ở trang chủ.
+    // ?q=    : ô tìm ở hero trang chủ và ô tìm trên Navbar đều đẩy sang đây.
+    //          Bản trước CHỈ đọc `loai` nên `q` bị bỏ qua im lặng — gõ gì cũng ra
+    //          nguyên danh sách, trông như ô tìm hỏng.
     useEffect(() => {
         setLoai(searchParams.get('loai') || '')
+        setTuKhoa(searchParams.get('q') || '')
     }, [searchParams])
+
+    // Ghi bộ lọc vào URL để chia sẻ được và tab dưới sáng đúng — không tải lại trang.
+    // Giữ CẢ HAI tham số, nếu không thì đổi loại sẽ xoá mất từ khoá đang tìm (và ngược lại).
+    const capNhatUrl = (loaiMoi, tuKhoaMoi) => {
+        const p = new URLSearchParams()
+        if (loaiMoi) p.set('loai', loaiMoi)
+        if (tuKhoaMoi?.trim()) p.set('q', tuKhoaMoi.trim())
+        const s = p.toString()
+        router.replace(s ? `/kham-pha?${s}` : '/kham-pha', { scroll: false })
+    }
 
     const doiLoai = (id) => {
         setLoai(id)
-        // Ghi vào URL để chia sẻ được và tab dưới sáng đúng — không tải lại trang
-        router.replace(id ? `/kham-pha?loai=${id}` : '/kham-pha', { scroll: false })
+        capNhatUrl(id, tuKhoa)
+    }
+
+    const doiTuKhoa = (v) => {
+        setTuKhoa(v)
+        capNhatUrl(loai, v)
     }
 
     const viTri = () => {
@@ -91,11 +110,11 @@ function NoiDungKhamPha() {
                 {/* Ô tìm kiếm */}
                 <div className='flex items-center gap-2.5 bg-white border border-slate-200 rounded-full px-5 py-3 mt-5 shadow-sm max-w-xl'>
                     <Search size={18} className='text-slate-400 shrink-0' />
-                    <input value={tuKhoa} onChange={e => setTuKhoa(e.target.value)}
+                    <input value={tuKhoa} onChange={e => doiTuKhoa(e.target.value)}
                         placeholder={t('Tìm địa điểm, quán ăn...', 'Search places, eateries...', '搜索地点、餐馆…')}
                         className='w-full bg-transparent outline-none text-sm placeholder-slate-400' />
                     {tuKhoa && (
-                        <button onClick={() => setTuKhoa('')} aria-label={t('Xoá', 'Clear', '清除')}
+                        <button onClick={() => doiTuKhoa('')} aria-label={t('Xoá', 'Clear', '清除')}
                             className='text-slate-300 hover:text-slate-500 shrink-0'><X size={16} /></button>
                     )}
                 </div>
